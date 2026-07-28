@@ -1,0 +1,52 @@
+<svg viewBox="0 0 900 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16A34A"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="heroGradSoft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16A34A" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0.85"/>
+    </linearGradient>
+    <pattern id="dotsPattern" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#FFFFFF" fill-opacity="0.18"/>
+    </pattern>
+  </defs>
+
+  <rect width="900" height="760" fill="url(#heroGrad)"/>
+  <rect width="900" height="760" fill="url(#dotsPattern)"/>
+
+  <!-- Abstract monitor / vital-sign device -->
+  <g transform="translate(180,180)">
+    <rect x="0" y="0" width="540" height="340" rx="28" fill="#FFFFFF" fill-opacity="0.14"/>
+    <rect x="30" y="30" width="480" height="220" rx="16" fill="#0B1220" fill-opacity="0.35"/>
+    <polyline points="55,160 110,160 135,90 165,220 195,60 225,160 480,160"
+              fill="none" stroke="#4ADE80" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="60" cy="280" r="10" fill="#FFFFFF" fill-opacity="0.5"/>
+    <circle cx="95" cy="280" r="10" fill="#FFFFFF" fill-opacity="0.3"/>
+    <circle cx="130" cy="280" r="10" fill="#FFFFFF" fill-opacity="0.3"/>
+  </g>
+
+  <!-- Calibration gauge -->
+  <g transform="translate(560,420)">
+    <circle cx="90" cy="90" r="90" fill="#FFFFFF" fill-opacity="0.14"/>
+    <circle cx="90" cy="90" r="62" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="6"/>
+    <line x1="90" y1="90" x2="90" y2="40" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+    <line x1="90" y1="90" x2="128" y2="112" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="90" cy="90" r="7" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Technician silhouette (abstract) -->
+  <g transform="translate(120,470)">
+    <circle cx="70" cy="40" r="34" fill="#FFFFFF" fill-opacity="0.35"/>
+    <path d="M10,230 Q10,120 70,110 Q130,120 130,230 Z" fill="#FFFFFF" fill-opacity="0.28"/>
+    <rect x="100" y="120" width="70" height="20" rx="10" fill="#FFFFFF" fill-opacity="0.4"/>
+  </g>
+
+  <text x="60" y="720" font-family="Poppins, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF" fill-opacity="0.9">
+    Kalibrasi Alat Kesehatan
+  </text>
+  <text x="60" y="748" font-family="Poppins, sans-serif" font-size="16" fill="#FFFFFF" fill-opacity="0.7">
+    Gambar dummy — ganti dengan foto asli
+  </text>
+</svg>

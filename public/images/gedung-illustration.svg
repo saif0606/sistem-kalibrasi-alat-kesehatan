@@ -1,0 +1,17 @@
+<svg viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16A34A"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="#FFFFFF" fill-opacity="0.16"/>
+    </pattern>
+  </defs>
+  <rect width="700" height="520" fill="url(#g)"/>
+  <rect width="700" height="520" fill="url(#dots)"/>
+  <circle cx="350" cy="220" r="120" fill="#FFFFFF" fill-opacity="0.12"/>
+  <g transform="translate(250,120)"><rect x="0" y="60" width="200" height="150" fill="#FFFFFF" fill-opacity="0.85"/><polygon points="0,60 100,10 200,60" fill="#FFFFFF" fill-opacity="0.95"/><rect x="30" y="90" width="30" height="30" fill="#2563EB" fill-opacity="0.6"/><rect x="85" y="90" width="30" height="30" fill="#2563EB" fill-opacity="0.6"/><rect x="140" y="90" width="30" height="30" fill="#2563EB" fill-opacity="0.6"/><rect x="30" y="140" width="30" height="30" fill="#2563EB" fill-opacity="0.6"/><rect x="140" y="140" width="30" height="30" fill="#2563EB" fill-opacity="0.6"/><rect x="82" y="150" width="36" height="60" fill="#16A34A" fill-opacity="0.8"/></g>
+  <text x="40" y="470" font-family="Poppins, sans-serif" font-size="22" font-weight="700" fill="#FFFFFF" fill-opacity="0.92">Gedung UPTD Balai</text>
+  <text x="40" y="496" font-family="Poppins, sans-serif" font-size="13" fill="#FFFFFF" fill-opacity="0.68">Gambar dummy — ganti dengan foto asli</text>
+</svg>

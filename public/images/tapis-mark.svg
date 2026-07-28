@@ -1,0 +1,34 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="markG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD"/>
+      <stop offset="55%" stop-color="#A7D8C8"/>
+      <stop offset="100%" stop-color="#86EFAC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Pita diagonal pendamping -->
+  <g stroke="url(#markG)" fill="none" stroke-linecap="butt">
+    <line x1="-30" y1="70" x2="70" y2="-30" stroke-width="22"/>
+    <line x1="-30" y1="105" x2="105" y2="-30" stroke-width="22" opacity="0.7"/>
+  </g>
+
+  <!-- Crosshair / bidik presisi — mengambil bentuk ornamen atas logo UPTD -->
+  <g stroke="url(#markG)" fill="none" stroke-width="2" stroke-linecap="round">
+    <circle cx="150" cy="46" r="16"/>
+    <circle cx="150" cy="46" r="4" fill="url(#markG)" stroke="none"/>
+    <line x1="150" y1="18" x2="150" y2="26"/>
+    <line x1="150" y1="66" x2="150" y2="74"/>
+    <line x1="122" y1="46" x2="130" y2="46"/>
+    <line x1="170" y1="46" x2="178" y2="46"/>
+  </g>
+
+  <!-- Ruas skala penggaris — mengambil bentuk batang ukur pada logo UPTD -->
+  <g stroke="url(#markG)" stroke-width="2" stroke-linecap="round">
+    <line x1="150" y1="90" x2="150" y2="150"/>
+    <line x1="143" y1="98" x2="150" y2="98"/>
+    <line x1="143" y1="112" x2="150" y2="112"/>
+    <line x1="143" y1="126" x2="150" y2="126"/>
+    <line x1="143" y1="140" x2="150" y2="140"/>
+  </g>
+</svg>
