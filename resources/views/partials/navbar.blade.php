@@ -15,6 +15,7 @@
 @php
     $isLoggedIn = auth()->check();
 
+<<<<<<< HEAD
     $memberUser = $isLoggedIn ? [
         'name' => auth()->user()->name,
         'email' => auth()->user()->email,
@@ -54,6 +55,58 @@
                 <span class="brand-line-1">UPTD Balai Pengujian &amp; Kalibrasi</span>
                 <span class="brand-line-2">Alat Kesehatan &bull; Provinsi Lampung</span>
             </span>
+=======
+    {{-- BENAR --}}
+<div class="nav-right">
+  @auth
+    @php
+    $notifCert = \App\Models\CalibrationRequest::where('user_id', auth()->id())
+    ->where('status', 'Sertifikat')
+    ->whereNull('cert_ready_notif_dismissed_at')
+    ->count();
+        $notifChat = \App\Models\ChatMessage::where('user_id', auth()->id())
+            ->where('sender_role', 'admin')
+            ->whereNull('read_by_user_at')
+            ->count();
+        $notifTotal = $notifCert + $notifChat;
+    @endphp
+    <div class="dropdown">
+        <button class="notif-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Notifikasi">
+            <i class="bi bi-bell-fill"></i>
+            @if($notifTotal > 0)
+                <span class="notif-badge">{{ $notifTotal > 9 ? '9+' : $notifTotal }}</span>
+            @endif
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" style="min-width:300px; border-radius:14px; overflow:hidden;">
+            <li class="px-3 py-2 border-bottom" style="background: linear-gradient(120deg, #094a73, #17a45c);">
+                <span style="font-weight:700; font-size:0.82rem; color:#fff;"><i class="bi bi-bell-fill me-1"></i> Notifikasi</span>
+            </li>
+            @if($notifCert > 0)
+                <li>
+                    <a href="{{ route('user.calibrations.index') }}" class="dropdown-item d-flex align-items-start gap-2 py-2">
+                        <i class="bi bi-patch-check-fill" style="color:#17a45c;"></i>
+                        <span style="font-size:0.82rem;">{{ $notifCert }} sertifikat siap diambil</span>
+                    </a>
+                </li>
+            @endif
+            @if($notifChat > 0)
+                <li>
+                    <a href="{{ route('user.chat.index') }}" class="dropdown-item d-flex align-items-start gap-2 py-2">
+                        <i class="bi bi-chat-dots-fill" style="color:#2b6ff0;"></i>
+                        <span style="font-size:0.82rem;">{{ $notifChat }} balasan admin belum dibaca</span>
+                    </a>
+                </li>
+            @endif
+            @if($notifTotal === 0)
+                <li class="px-3 py-3 text-center" style="font-size:0.78rem; color:#8a9bab;">Tidak ada notifikasi baru</li>
+            @endif
+        </ul>
+    </div>
+  @endif
+      @auth
+        <a href="{{ route('user.calibrations.index') }}" class="login-link d-none d-lg-inline" style="display:flex;align-items:center;gap:6px;">
+          <i class="bi bi-person-circle"></i> {{ Str::limit(Auth::user()->name, 12) }}
+>>>>>>> b1e5967 (benerin bagian admin pesanan, user, notifikasi, edit  dokumen pengajuan, chat)
         </a>
 
         {{-- Mobile toggler --}}

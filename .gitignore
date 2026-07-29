@@ -25,3 +25,12 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# File Kredensial & Konfigurasi Tambahan
+kalibrasi-*.json
+*.exe
+
+# Script / File Uji Coba Pribadi (Opsional, jika tidak ingin ikut di-push)
+check_db.php
+test_mail.php
+*.py

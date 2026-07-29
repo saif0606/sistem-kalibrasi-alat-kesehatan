@@ -251,9 +251,22 @@ Route::get('/profil', function () {
     return view('pages.profil');
 })->name('profil');
 
+<<<<<<< HEAD
 Route::get('/layanan', function () {
     return view('pages.layanan');
 })->name('layanan');
+=======
+// ===== ADMIN =====
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/document', [\App\Http\Controllers\Admin\DashboardController::class, 'updateDocument'])->name('dashboard.document.update');
+    Route::get('/dashboard/export/download', [\App\Http\Controllers\Admin\DashboardController::class, 'exportExcel'])->name('dashboard.export.download');
+    Route::resource('articles',           \App\Http\Controllers\Admin\ArticleController::class);
+    Route::resource('service-categories', \App\Http\Controllers\Admin\ServiceCategoryController::class);
+    Route::resource('services',           \App\Http\Controllers\Admin\ServiceController::class);
+    Route::resource('calibrations',       \App\Http\Controllers\Admin\CalibrationController::class);
+    Route::post('/calibrations/{calibration}/reply-chat', [\App\Http\Controllers\Admin\CalibrationController::class, 'replyChat'])->name('calibrations.reply-chat');
+>>>>>>> b1e5967 (benerin bagian admin pesanan, user, notifikasi, edit  dokumen pengajuan, chat)
 
 Route::get('/proses', function () {
     if ($redirect = guardMember('Silakan login untuk melihat proses pengajuan Anda.')) {
@@ -266,6 +279,7 @@ Route::get('/berita', function () {
     return view('pages.berita', ['beritaList' => uptdBeritaData()]);
 })->name('berita');
 
+<<<<<<< HEAD
 Route::get('/berita/{slug}', function (string $slug) {
     $data = uptdBeritaData();
     return view('pages.berita-detail', [
@@ -342,3 +356,27 @@ Route::get('/dashboard/riwayat', function () {
         'riwayatList' => uptdPengajuanData(),
     ]);
 })->name('dashboard.riwayat');
+=======
+// ===== USER / PELANGGAN =====
+Route::prefix('proses')->name('user.')->middleware(['auth'])->group(function () {
+    Route::get('/',          [\App\Http\Controllers\User\CalibrationController::class, 'index'])->name('calibrations.index');
+    Route::get('/ajukan',   [\App\Http\Controllers\User\CalibrationController::class, 'create'])->name('calibrations.create');
+    Route::post('/ajukan',  [\App\Http\Controllers\User\CalibrationController::class, 'store'])->name('calibrations.store');
+    Route::get('/{calibration}', [\App\Http\Controllers\User\CalibrationController::class, 'show'])->name('calibrations.show');
+    Route::post('/{calibration}/resubmit-dokumen', [\App\Http\Controllers\User\CalibrationController::class, 'resubmitDokumen'])->name('calibrations.resubmit-dokumen');
+    
+    Route::post('/{calibration}/dismiss-cert-notif', function (\App\Models\CalibrationRequest $calibration) {
+        abort_if($calibration->user_id !== auth()->id(), 403);
+        $calibration->update(['cert_ready_notif_dismissed_at' => now()]);
+        return response()->json(['success' => true]);
+        })->name('calibrations.dismiss-cert-notif');
+});
+
+Route::prefix('chat')->name('user.chat.')->middleware(['auth'])->group(function () {
+    Route::get('/',         [\App\Http\Controllers\User\ChatController::class, 'index'])->name('index');
+    Route::post('/',        [\App\Http\Controllers\User\ChatController::class, 'store'])->name('store');
+    Route::get('/messages', [\App\Http\Controllers\User\ChatController::class, 'messages'])->name('messages');
+    Route::get('/unread-count', [\App\Http\Controllers\User\ChatController::class, 'unreadCount'])->name('unread-count'); // TAMBAHAN
+    Route::delete('/messages/{message}', [\App\Http\Controllers\User\ChatController::class, 'destroy'])->name('destroy');
+});
+>>>>>>> b1e5967 (benerin bagian admin pesanan, user, notifikasi, edit  dokumen pengajuan, chat)

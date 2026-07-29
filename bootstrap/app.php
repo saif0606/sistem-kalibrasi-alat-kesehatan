@@ -12,7 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+<<<<<<< HEAD
         //
+=======
+        $middleware->redirectGuestsTo('/login');
+
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        ]);
+>>>>>>> b1e5967 (benerin bagian admin pesanan, user, notifikasi, edit  dokumen pengajuan, chat)
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
