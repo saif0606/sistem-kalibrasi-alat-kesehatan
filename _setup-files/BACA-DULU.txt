@@ -1,0 +1,20 @@
+SETUP SSL/CACERT UNTUK COMPOSER (LARAGON)
+==========================================
+File php.ini kamu (yang kamu kirim) sudah diset begini di baris paling atas:
+
+    curl.cainfo = "D:\laragon\bin\php\cacert.pem"
+    openssl.cafile = "D:\laragon\bin\php\cacert.pem"
+
+Supaya composer install tidak gagal karena SSL, taruh cacert.pem
+(satu folder ini) persis di path itu:
+
+    D:\laragon\bin\php\cacert.pem
+
+Lalu pastikan php.ini yang AKTIF di Laragon kamu (biasanya di
+D:\laragon\bin\php\php-8.x.x\php.ini) sudah sama dengan php.ini
+yang kamu kirim (sudah saya cek: extension curl, fileinfo,
+mbstring, mysqli, openssl, pdo_mysql, zip semuanya sudah aktif —
+persis yang dibutuhkan project ini). Kalau mau, tinggal timpa
+file php.ini aktif itu dengan yang ada di folder ini.
+
+Setelah itu baru jalankan composer install di folder project.

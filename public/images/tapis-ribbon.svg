@@ -1,0 +1,16 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ribbonG" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93C5FD"/>
+      <stop offset="55%" stop-color="#A7D8C8"/>
+      <stop offset="100%" stop-color="#86EFAC"/>
+    </linearGradient>
+  </defs>
+  <!-- Pita diagonal, memancar dari sudut — bahasa visual "kipas skala"
+       pada logo UPTD, disederhanakan jadi 3 pita gradasi biru→hijau. -->
+  <g stroke="url(#ribbonG)" fill="none" stroke-linecap="butt">
+    <line x1="-30" y1="55" x2="55" y2="-30" stroke-width="26"/>
+    <line x1="-30" y1="95" x2="95" y2="-30" stroke-width="26" opacity="0.75"/>
+    <line x1="-30" y1="135" x2="135" y2="-30" stroke-width="26" opacity="0.5"/>
+  </g>
+</svg>
