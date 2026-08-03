@@ -140,15 +140,22 @@
                     </p>
                     <div class="row g-3 my-4">
                         @php
+                            $setting = $setting ?? null;
+                            $kanPdf = $setting && $setting->sertifikat_kan
+                                ? asset('storage/' . $setting->sertifikat_kan)
+                                : asset('assets/pdf/akreditasi-kan-iso17025.pdf');
+                            $izinPdf = $setting && $setting->surat_operasional
+                                ? asset('storage/' . $setting->surat_operasional)
+                                : asset('assets/pdf/izin-kemenkes.pdf');
                             $legalBadges = [
-                                ['icon' => 'bi-patch-check', 'label' => 'Akreditasi KAN', 'pdf' => 'akreditasi-kan-iso17025.pdf'],
-                                ['icon' => 'bi-award', 'label' => 'ISO/IEC 17025', 'pdf' => 'akreditasi-kan-iso17025.pdf'],
-                                ['icon' => 'bi-shield-check', 'label' => 'Izin Kemenkes', 'pdf' => 'izin-kemenkes.pdf'],
+                                ['icon' => 'bi-patch-check', 'label' => 'Akreditasi KAN', 'pdf' => $kanPdf],
+                                ['icon' => 'bi-award', 'label' => 'ISO/IEC 17025', 'pdf' => $kanPdf],
+                                ['icon' => 'bi-shield-check', 'label' => 'Izin Kemenkes', 'pdf' => $izinPdf],
                             ];
                         @endphp
                         @foreach ($legalBadges as $badge)
                             <div class="col-4">
-                                <a href="{{ asset('assets/pdf/' . $badge['pdf']) }}" target="_blank" rel="noopener" class="about-mini-stat">
+                                <a href="{{ $badge['pdf'] }}" target="_blank" rel="noopener" class="about-mini-stat">
                                     <i class="bi {{ $badge['icon'] }}"></i>
                                     <span>{{ $badge['label'] }}</span>
                                 </a>

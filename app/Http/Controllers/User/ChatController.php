@@ -176,8 +176,23 @@ public function unreadCount()
            $confidence = $hasil['confidence'] ?? 0;
            $attachment = null; // dipakai kalau ada intent yang perlu kirim file (mis. panduan PDF)
            
+           $fallbackMessage = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+
            if ($confidence < $THRESHOLD || !$intent) {
-            $jawabanBot = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+               // Cek apakah bot sudah mengirim pesan fallback ini dalam 1 jam terakhir
+               $recentFallback = ChatMessage::where('user_id', Auth::id())
+                   ->where('sender_role', 'bot')
+                   ->where('message', $fallbackMessage)
+                   ->where('created_at', '>=', now()->subHour())
+                   ->exists();
+
+               if ($recentFallback) {
+                   // Jika sudah pernah, jangan balas apa-apa, agar tidak spam.
+                   // Pesan user tetap tersimpan dari fungsi store() sebelumnya.
+                   return;
+               }
+
+               $jawabanBot = $fallbackMessage;
             } elseif ($intent === 'harga_kalibrasi_alat') {
                 $jawabanBot = $this->jawabHargaAlat($pesanUser);
                 } elseif (in_array($intent, ['cara_bayar_saibara', 'sistem_pembayaran', 'wajib_pakai_saibara'])) {
@@ -322,9 +337,7 @@ public function unreadCount()
         if (count($matched) === 1) {
             $nama  = array_key_first($matched);
             $harga = $matched[$nama];
-            return "Tarif kalibrasi untuk **{$nama}** adalah **Rp" . number_format($harga, 0, ',', '.') .
-                   "** (berdasarkan Perda Provinsi Lampung No. 4 Tahun 2024). " .
-                   "Harga tersebut belum termasuk biaya akomodasi tenaga teknis.";
+            return "Harga Kalibrasi {$nama}: Rp" . number_format($harga, 0, ',', '.') . ". Namun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis. Hal ini sudah ditulis pada Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024.";
         }
 
         // Lebih dari 1 alat disebutkan -> tampilkan daftar khusus alat yang disebut
@@ -332,9 +345,9 @@ public function unreadCount()
         foreach ($matched as $nama => $harga) {
             $lines[] = "• {$nama}: Rp" . number_format($harga, 0, ',', '.');
         }
-        return "Berikut tarif kalibrasi untuk alat yang Anda sebutkan (Perda Lampung No. 4 Tahun 2024):\n" .
+        return "Harga Kalibrasi berdasarkan Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024:\n" .
                implode("\n", $lines) .
-               "\n\nHarga di atas belum termasuk biaya akomodasi tenaga teknis.";
+               "\n\nNamun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis.";
     }
 
     /**

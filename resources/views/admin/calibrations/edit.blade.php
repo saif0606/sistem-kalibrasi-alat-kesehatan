@@ -370,7 +370,10 @@
                                 <li>
                                     <button type="button" 
                                             class="modern-select-item {{ $selectedLokasi === $val ? 'active' : '' }}" 
-                                            onclick="setModernSelect(this, 'lokasi-kalibrasi-input', '{{ $val }}', '{{ $opt['label'] }}', '{{ $opt['icon'] }}')">
+                                            data-target-input="lokasi-kalibrasi-input"
+                                            data-value="{{ $val }}"
+                                            data-label="{{ $opt['label'] }}"
+                                            data-icon="{{ $opt['icon'] }}">
                                         <i class="bi {{ $opt['icon'] }}"></i>
                                         <span>{{ $opt['label'] }}</span>
                                         <i class="bi bi-check-lg modern-select-check"></i>

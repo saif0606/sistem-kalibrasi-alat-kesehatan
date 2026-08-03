@@ -4,8 +4,10 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\CalibrationRequest;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CalibrationController extends Controller
 {
@@ -72,6 +74,46 @@ if ($request->hasFile('daftar_alat')) {
 
         $registrationNumber = str_pad($calibration->id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('d-m-Y');
         $calibration->update(['registration_number' => $registrationNumber]);
+
+        // Kirim data pesanan ke Google Sheets melalui Webhook (Google Apps Script atau endpoint lain)
+        try {
+            $webhook = config('services.sheets.webhook_url') ?? Setting::current()->sheets_webhook_url;
+            if (!empty($webhook)) {
+                $response = Http::timeout(15)->asJson()->post($webhook, [
+                    'action' => 'create',
+                    'registration_number' => $registrationNumber,
+                    'user_id' => $calibration->user_id,
+                    'nama_instansi' => $calibration->nama_instansi,
+                    'nama_kontak' => $calibration->nama_kontak,
+                    'nomor_telepon' => $calibration->nomor_telepon,
+                    'email' => $calibration->email,
+                    'alamat_lengkap' => $calibration->alamat_lengkap,
+                    'device_name' => $calibration->device_name,
+                    'metode_kalibrasi' => $calibration->metode_kalibrasi,
+                    'catatan_tambahan' => $calibration->catatan_tambahan,
+                    'daftar_alat' => json_decode($calibration->daftar_alat, true) ?? [],
+                    'status' => $calibration->status,
+                    'request_date' => $calibration->request_date,
+                    'link_admin' => url(route('admin.calibrations.show', $calibration->id)),
+                ]);
+
+                // Google Apps Script tidak selalu melempar HTTP error saat gagal
+                // (mis. redirect ke halaman login Google jika akses deployment
+                // salah), jadi respons harus dicek eksplisit dan dicatat ke log
+                // supaya kegagalan tidak "diam-diam" tidak diketahui.
+                if ($response->failed()) {
+                    \Illuminate\Support\Facades\Log::warning('Sheets webhook (create) HTTP gagal: status ' . $response->status() . ' | body: ' . \Illuminate\Support\Str::limit($response->body(), 500));
+                } elseif (!str_contains(strtolower($response->header('Content-Type') ?? ''), 'json') || (($response->json('ok') ?? null) === false)) {
+                    \Illuminate\Support\Facades\Log::warning('Sheets webhook (create) merespons tidak sesuai (kemungkinan bukan JSON dari Apps Script / akses deployment salah): ' . \Illuminate\Support\Str::limit($response->body(), 500));
+                } else {
+                    \Illuminate\Support\Facades\Log::info('Sheets webhook (create) sukses untuk registrasi ' . $registrationNumber);
+                }
+            } else {
+                \Illuminate\Support\Facades\Log::warning('Sheets webhook URL belum diset (config services.sheets.webhook_url maupun Setting::sheets_webhook_url kosong) — pengajuan ' . $registrationNumber . ' tidak dikirim ke spreadsheet.');
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim ke sheets webhook: ' . $e->getMessage());
+        }
 
         return redirect()->route('user.calibrations.index')->with('success', 'Pengajuan kalibrasi berhasil dikirim! Nomor registrasi Anda: ' . $registrationNumber);
     }

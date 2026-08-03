@@ -1041,6 +1041,19 @@ function setModernSelect(btn, hiddenInputId, value, label, icon) {
     });
     btn.classList.add('active');
 }
+
+document.addEventListener('click', function (event) {
+    const target = event.target.closest('.modern-select-item');
+    if (!target) {
+        return;
+    }
+    const hiddenInputId = target.dataset.targetInput;
+    if (!hiddenInputId) {
+        return;
+    }
+
+    setModernSelect(target, hiddenInputId, target.dataset.value, target.dataset.label, target.dataset.icon);
+});
 </script>
 
 @stack('scripts')

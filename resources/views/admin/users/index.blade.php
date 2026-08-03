@@ -60,7 +60,10 @@
                             <li>
                                 <button type="button"
                                         class="modern-select-item {{ $selectedRole === $value ? 'active' : '' }}"
-                                        onclick="setModernSelect(this, 'role-filter-input', '{{ $value }}', '{{ $opt['label'] }}', '{{ $opt['icon'] }}')">
+                                        data-target-input="role-filter-input"
+                                        data-value="{{ $value }}"
+                                        data-label="{{ $opt['label'] }}"
+                                        data-icon="{{ $opt['icon'] }}">
                                     <i class="bi {{ $opt['icon'] }}"></i>
                                     <span>{{ $opt['label'] }}</span>
                                     <i class="bi bi-check-lg modern-select-check"></i>

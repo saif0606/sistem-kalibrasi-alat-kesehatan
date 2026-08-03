@@ -50,7 +50,10 @@
                             <li>
                                 <button type="button"
                                         class="modern-select-item {{ $selectedStatus === $value ? 'active' : '' }}"
-                                        onclick="setModernSelect(this, 'status-filter-input', '{{ $value }}', '{{ $opt['label'] }}', '{{ $opt['icon'] }}')">
+                                        data-target-input="status-filter-input"
+                                        data-value="{{ $value }}"
+                                        data-label="{{ $opt['label'] }}"
+                                        data-icon="{{ $opt['icon'] }}">
                                     <i class="bi {{ $opt['icon'] }}"></i>
                                     <span>{{ $opt['label'] }}</span>
                                     <i class="bi bi-check-lg modern-select-check"></i>
@@ -146,6 +149,13 @@
                                    class="btn btn-sm btn-primary py-1 px-2" style="font-size:0.78rem;">
                                     <i class="bi bi-pencil me-1"></i> Update
                                 </a>
+                                <form action="{{ route('admin.calibrations.destroy', $c) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pesanan ini? Aksi ini tidak dapat dibatalkan dan akan menghapus data pada akun user juga.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger py-1 px-2" style="font-size:0.78rem;">
+                                        <i class="bi bi-trash me-1"></i> Hapus
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

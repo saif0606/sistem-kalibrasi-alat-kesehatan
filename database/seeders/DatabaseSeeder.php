@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             FaqAnswerSeeder::class,
+            ServiceSeeder::class,
         ]);
 
         // Akun Admin — untuk login di /admin/login

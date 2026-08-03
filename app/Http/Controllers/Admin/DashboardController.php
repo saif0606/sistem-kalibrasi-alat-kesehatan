@@ -69,6 +69,7 @@ class DashboardController extends Controller
             'sertifikat_kan'    => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'surat_operasional' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'spreadsheet_url'   => ['nullable', 'url', 'max:2048'],
+            'sheets_webhook_url'=> ['nullable', 'url', 'max:2048'],
         ]);
 
         $setting = Setting::current();
@@ -89,6 +90,10 @@ class DashboardController extends Controller
 
         if ($request->filled('spreadsheet_url')) {
             $setting->spreadsheet_url = $validated['spreadsheet_url'];
+        }
+
+        if ($request->filled('sheets_webhook_url')) {
+            $setting->sheets_webhook_url = $validated['sheets_webhook_url'];
         }
 
         $setting->save();

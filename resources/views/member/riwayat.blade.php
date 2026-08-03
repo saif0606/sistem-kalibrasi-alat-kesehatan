@@ -5,45 +5,42 @@
 @section('content')
 
     @php
-        // $riwayatList dikirim dari route (routes/web.php), bersumber dari
-        // uptdPengajuanData() — sumber yang sama dipakai Dashboard & Status
-        // Terakhir, jadi nomor pengajuan konsisten di semua halaman.
+        // $riwayatList dikirim dari route (routes/web.php), bersumber langsung
+        // dari tabel calibration_requests milik user yang sedang login.
 
         $statusMeta = [
-            'menunggu' => [
+            'Pengajuan'   => [
                 'label' => 'Menunggu Verifikasi',
                 'class' => 'status-menunggu',
                 'desc'  => 'Pengajuan sedang diperiksa oleh petugas.',
             ],
-            'jadwal' => [
+            'Penjadwalan' => [
                 'label' => 'Menunggu Jadwal',
                 'class' => 'status-jadwal',
                 'desc'  => 'Pengajuan terverifikasi, menunggu jadwal pelaksanaan.',
             ],
-            'diproses' => [
+            'Kalibrasi'   => [
                 'label' => 'Sedang Diproses',
                 'class' => 'status-diproses',
                 'desc'  => 'Kalibrasi sedang dijadwalkan.',
             ],
-            'selesai' => [
+            'Selesai'     => [
                 'label' => 'Selesai',
                 'class' => 'status-selesai',
                 'desc'  => 'Pengajuan telah selesai dan sertifikat tersedia.',
             ],
-            'ditolak' => [
+            'Ditolak'     => [
                 'label' => 'Ditolak',
                 'class' => 'status-ditolak',
                 'desc'  => 'Silakan lihat detail untuk informasi lebih lanjut.',
             ],
         ];
 
-        // Ringkasan statistik dihitung dari data di atas — begitu diganti
-        // query database, cukup ganti count() ini dengan agregasi Eloquent.
         $stats = [
-            ['label' => 'Total Pengajuan', 'value' => count($riwayatList), 'icon' => 'bi-folder2-open', 'tone' => 'green'],
-            ['label' => 'Sedang Diproses', 'value' => count(array_filter($riwayatList, fn($i) => $i['status'] === 'diproses')), 'icon' => 'bi-gear-wide-connected', 'tone' => 'blue'],
-            ['label' => 'Selesai', 'value' => count(array_filter($riwayatList, fn($i) => $i['status'] === 'selesai')), 'icon' => 'bi-check-circle', 'tone' => 'green'],
-            ['label' => 'Menunggu Verifikasi', 'value' => count(array_filter($riwayatList, fn($i) => $i['status'] === 'menunggu')), 'icon' => 'bi-hourglass-split', 'tone' => 'amber'],
+            ['label' => 'Total Pengajuan', 'value' => $totalCount, 'icon' => 'bi-folder2-open', 'tone' => 'green'],
+            ['label' => 'Sedang Diproses', 'value' => $statusCounts['Kalibrasi'] ?? 0, 'icon' => 'bi-gear-wide-connected', 'tone' => 'blue'],
+            ['label' => 'Selesai', 'value' => $statusCounts['Selesai'] ?? 0, 'icon' => 'bi-check-circle', 'tone' => 'green'],
+            ['label' => 'Menunggu Verifikasi', 'value' => $statusCounts['Pengajuan'] ?? 0, 'icon' => 'bi-hourglass-split', 'tone' => 'amber'],
         ];
     @endphp
 
@@ -111,15 +108,15 @@
             @if (count($riwayatList))
                 <div class="riw-list" id="riwList">
                     @foreach ($riwayatList as $i => $item)
-                        @php $meta = $statusMeta[$item['status']]; @endphp
+                        @php $meta = $statusMeta[$item->status] ?? ['label' => ucwords($item->status), 'class' => 'status-menunggu', 'desc' => 'Sedang diproses.']; @endphp
                         <div class="riw-card" data-aos="fade-up" data-aos-delay="{{ min($i * 40, 200) }}"
-                             data-kode="{{ strtolower($item['kode']) }}" data-status="{{ $item['status'] }}"
-                             data-href="{{ route('user.calibrations.show', $item['kode']) }}#top" role="link" tabindex="0">
+                             data-kode="{{ strtolower($item->registration_number) }}" data-status="{{ $item->status }}"
+                             data-href="{{ route('user.calibrations.show', $item->id) }}#top" role="link" tabindex="0">
 
                             <div class="riw-card-top">
                                 <div class="riw-card-kode">
-                                    <span>{{ $item['kode'] }}</span>
-                                    <button type="button" class="riw-copy-btn" data-copy="{{ $item['kode'] }}" aria-label="Salin nomor pengajuan">
+                                    <span>{{ $item->registration_number }}</span>
+                                    <button type="button" class="riw-copy-btn" data-copy="{{ $item->registration_number }}" aria-label="Salin nomor pengajuan">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
                                 </div>
@@ -134,32 +131,38 @@
                             <div class="riw-card-meta">
                                 <div class="riw-meta-item">
                                     <span><i class="bi bi-hospital"></i> Nama Instansi</span>
-                                    <strong>{{ $item['instansi'] }}</strong>
+                                    <strong>{{ $item->nama_instansi }}</strong>
                                 </div>
                                 <div class="riw-meta-item">
                                     <span><i class="bi bi-calendar3"></i> Tanggal Pengajuan</span>
-                                    <strong>{{ $item['tanggal']->translatedFormat('d F Y') }}</strong>
+                                    <strong>{{ ($item->request_date ?? $item->created_at)->translatedFormat('d F Y') }}</strong>
                                 </div>
                                 <div class="riw-meta-item">
                                     <span><i class="bi bi-arrow-repeat"></i> Update Terakhir</span>
-                                    <strong>{{ $item['tanggal']->translatedFormat('d F Y') }} • {{ $item['tanggal']->format('H.i') }} WIB</strong>
+                                    <strong>{{ $item->updated_at->translatedFormat('d F Y') }} • {{ $item->updated_at->format('H.i') }} WIB</strong>
                                 </div>
                                 <div class="riw-meta-item">
                                     <span><i class="bi bi-clipboard2-check"></i> Jenis Layanan</span>
                                     <strong>Kalibrasi</strong>
                                 </div>
+                                @php
+                                    $daftarAlat = $item->daftar_alat;
+                                    if (is_string($daftarAlat)) {
+                                        $daftarAlat = json_decode($daftarAlat, true);
+                                    }
+                                @endphp
                                 <div class="riw-meta-item">
                                     <span><i class="bi bi-tools"></i> Jumlah Alat</span>
-                                    <strong>{{ $item['jumlah_alat'] }} Alat</strong>
+                                    <strong>{{ count(is_countable($daftarAlat) ? $daftarAlat : []) }} Alat</strong>
                                 </div>
                             </div>
 
                             <div class="riw-card-footer">
-                                <a href="{{ route('user.calibrations.show', $item['kode']) }}#top" class="btn btn-hero-outline riw-card-btn">
+                                <a href="{{ route('user.calibrations.show', $item->id) }}#top" class="btn btn-hero-outline riw-card-btn">
                                     Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
-                                @if ($item['status'] === 'selesai')
-                                    <button type="button" class="btn btn-hero-primary riw-card-btn riw-download-btn" data-kode="{{ $item['kode'] }}">
+                                @if ($item->status === 'Selesai')
+                                    <button type="button" class="btn btn-hero-primary riw-card-btn riw-download-btn" data-kode="{{ $item->registration_number }}">
                                         <i class="bi bi-download me-1"></i> Download Sertifikat
                                     </button>
                                 @endif
@@ -174,22 +177,7 @@
                     Tidak ada pengajuan yang cocok dengan pencarian/filter Anda.
                 </div>
 
-                {{-- ========================================================
-                     PAGINATION (dummy)
-                ======================================================== --}}
-                <nav class="riw-pagination-wrap" aria-label="Navigasi halaman riwayat pengajuan">
-                    <ul class="pagination riw-pagination">
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-left"></i></span>
-                        </li>
-                        <li class="page-item active"><span class="page-link">1</span></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
-                        </li>
-                    </ul>
-                </nav>
+                <div class="mt-4">{{ $riwayatList->links('pagination::bootstrap-5') }}</div>
             @else
                 {{-- ========================================================
                      EMPTY STATE — belum pernah mengajukan sama sekali

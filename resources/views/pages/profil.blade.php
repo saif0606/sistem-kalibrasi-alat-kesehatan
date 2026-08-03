@@ -244,16 +244,23 @@
 
             <div class="row g-4">
                 @php
+                    $setting = $setting ?? null;
+                    $kanPdf = $setting && $setting->sertifikat_kan
+                        ? asset('storage/' . $setting->sertifikat_kan)
+                        : asset('assets/pdf/akreditasi-kan-iso17025.pdf');
+                    $izinPdf = $setting && $setting->surat_operasional
+                        ? asset('storage/' . $setting->surat_operasional)
+                        : asset('assets/pdf/izin-kemenkes.pdf');
                     $legalItems = [
-                        ['icon' => 'bi-patch-check-fill', 'title' => 'Terakreditasi KAN', 'desc' => 'Diakreditasi oleh Komite Akreditasi Nasional sebagai laboratorium kalibrasi yang kompeten.', 'pdf' => 'akreditasi-kan-iso17025.pdf'],
-                        ['icon' => 'bi-award-fill', 'title' => 'ISO/IEC 17025', 'desc' => 'Menerapkan standar internasional untuk kompetensi laboratorium pengujian dan kalibrasi.', 'pdf' => 'akreditasi-kan-iso17025.pdf'],
-                        ['icon' => 'bi-shield-fill-check', 'title' => 'Izin Operasional Kemenkes', 'desc' => 'Mengantongi izin operasional resmi dari Kementerian Kesehatan Republik Indonesia.', 'pdf' => 'izin-kemenkes.pdf'],
+                        ['icon' => 'bi-patch-check-fill', 'title' => 'Terakreditasi KAN', 'desc' => 'Diakreditasi oleh Komite Akreditasi Nasional sebagai laboratorium kalibrasi yang kompeten.', 'pdf' => $kanPdf],
+                        ['icon' => 'bi-award-fill', 'title' => 'ISO/IEC 17025', 'desc' => 'Menerapkan standar internasional untuk kompetensi laboratorium pengujian dan kalibrasi.', 'pdf' => $kanPdf],
+                        ['icon' => 'bi-shield-fill-check', 'title' => 'Izin Operasional Kemenkes', 'desc' => 'Mengantongi izin operasional resmi dari Kementerian Kesehatan Republik Indonesia.', 'pdf' => $izinPdf],
                     ];
                 @endphp
 
                 @foreach ($legalItems as $item)
                     <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ $loop->index * 80 }}">
-                        <a href="{{ asset('assets/pdf/' . $item['pdf']) }}" target="_blank" rel="noopener" class="legal-card">
+                        <a href="{{ $item['pdf'] }}" target="_blank" rel="noopener" class="legal-card">
                             <div class="legal-card-icon">
                                 <i class="bi {{ $item['icon'] }}"></i>
                             </div>
