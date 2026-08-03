@@ -174,7 +174,11 @@ public function unreadCount()
             
             if (preg_match('/data: (\[.*?\])/', $responseBody, $matches)) {
                 $parsedData = json_decode($matches[1], true);
-                if (is_array($parsedData) && count($parsedData) >= 2) {
+                if (is_array($parsedData) && isset($parsedData[0]['intent'])) {
+                    $intent = $parsedData[0]['intent'];
+                    $confidence = (float) ($parsedData[0]['confidence'] ?? 0);
+                } elseif (is_array($parsedData) && count($parsedData) >= 2 && is_string($parsedData[0])) {
+                    // Fallback if it returns ["intent_name", 0.95]
                     $intent = $parsedData[0];
                     $confidence = (float) $parsedData[1];
                 }
