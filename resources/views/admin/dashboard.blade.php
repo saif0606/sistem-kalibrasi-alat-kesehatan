@@ -311,9 +311,23 @@
                             </div>
                             <a href="{{ $setting->spreadsheet_url ?? 'https://docs.google.com/spreadsheets/d/1DhHL_YELkImqnR3DgC0hYnIvqe9tB-Z-Tyebs_8o8CM/edit?usp=sharing' }}"
                                target="_blank" rel="noopener"
-                               class="btn w-100 mt-auto" style="background:#8b5cf6; color:#fff; border-radius:12px; font-size:0.82rem; font-weight:600; border:none; padding:10px 0;">
+                               class="btn w-100" style="background:#8b5cf6; color:#fff; border-radius:12px; font-size:0.82rem; font-weight:600; border:none; padding:10px 0;">
                                 <i class="bi bi-box-arrow-up-right me-1"></i> Buka Google Sheets
                             </a>
+
+                            <form action="{{ route('admin.dashboard.document.update') }}" method="POST" class="w-100 mt-3 text-start">
+                                @csrf
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px; text-align:left;">Atur URL Spreadsheet dan Webhook agar pesanan otomatis dikirim ke Google Sheets.</div>
+                                <div class="mb-2">
+                                    <label class="form-label" style="font-size:0.75rem; font-weight:700; color:var(--text-primary);">Spreadsheet URL</label>
+                                    <input type="url" name="spreadsheet_url" value="{{ $setting->spreadsheet_url }}" class="form-control form-control-sm" style="border-radius:12px; border-color:rgba(100,116,139,0.25); background:var(--card-bg); color:var(--text-primary);" placeholder="https://docs.google.com/spreadsheets/...">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label" style="font-size:0.75rem; font-weight:700; color:var(--text-primary);">Google Sheets Webhook URL</label>
+                                    <input type="url" name="sheets_webhook_url" value="{{ $setting->sheets_webhook_url }}" class="form-control form-control-sm" style="border-radius:12px; border-color:rgba(100,116,139,0.25); background:var(--card-bg); color:var(--text-primary);" placeholder="https://script.google.com/macros/s/.../exec">
+                                </div>
+                                <button type="submit" class="btn w-100" style="background:#6d28d9; color:#fff; border-radius:12px; font-size:0.82rem; font-weight:600; border:none; padding:10px 0;">Simpan Pengaturan</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -364,7 +378,7 @@
                     <div style="font-weight:700; font-size:0.95rem; color:var(--text-primary); margin-bottom:6px;">Seret file ke sini</div>
                     <div style="font-size:0.8rem; color:var(--text-muted);">atau klik untuk memilih file dari komputer</div>
 
-                    <input id="fileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;"
+                    <input id="fileInput" type="file" name="" accept=".pdf,.jpg,.jpeg,.png" style="display:none;"
                            onchange="handleFileSelect(this.files[0])">
                 </div>
 
@@ -570,7 +584,9 @@ observer.observe(document.documentElement, { attributes: true, attributeFilter: 
 
 <script>
 function openUploadModal(field, title, color, bgColor) {
-    document.getElementById('uploadFieldName').name = field;
+    document.getElementById('uploadFieldName').value = field;
+    const fileInput = document.getElementById('fileInput');
+    fileInput.name = field;
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalIconBox').style.background = color.includes('var') ? 'var(--blue-600)' : color;
     document.getElementById('submitBtn').style.background = color.includes('var') ? color : color;

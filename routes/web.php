@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Article;
+use App\Models\Setting;
 use App\Models\Service;
 
 /*
@@ -63,41 +64,6 @@ if (!function_exists('currentMemberUser')) {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Data dummy — Riwayat Pengajuan Kalibrasi
-|--------------------------------------------------------------------------
-| Dipusatkan di satu fungsi (pola sama seperti uptdBeritaData()) supaya
-| Dashboard, Riwayat Pengajuan, dan Status Terakhir membaca sumber yang
-| sama persis — tidak ada lagi nomor pengajuan berbeda-beda di tiap
-| halaman. Nomor dibuat OTOMATIS dari urutan tanggal pengajuan (bukan
-| ditulis manual satu-satu), format: 001-DDMMYYYY, 002-DDMMYYYY, dst.
-| Nanti tinggal diganti Pengajuan::where('user_id', ...)->get() — cukup
-| pastikan kolom 'kode' dihasilkan dengan pola yang sama.
-*/
-if (!function_exists('uptdPengajuanData')) {
-    function uptdPengajuanData(): array
-    {
-        $raw = [
-            ['instansi' => 'Klinik Bersalin Mutiara Bunda', 'tanggal' => \Carbon\Carbon::parse('2025-06-25 11:20:00'), 'status' => 'ditolak', 'jumlah_alat' => 118],
-            ['instansi' => 'RSUD Abdul Moeloek', 'tanggal' => \Carbon\Carbon::parse('2025-07-02 13:45:00'), 'status' => 'selesai', 'jumlah_alat' => 376],
-            ['instansi' => 'Puskesmas Rawat Inap Kedaton', 'tanggal' => \Carbon\Carbon::parse('2025-07-12 09:30:00'), 'status' => 'diproses', 'jumlah_alat' => 214],
-            ['instansi' => 'Klinik Pratama Sehat Mandiri', 'tanggal' => \Carbon\Carbon::parse('2025-07-15 14:00:00'), 'status' => 'jadwal', 'jumlah_alat' => 152],
-            ['instansi' => 'Laboratorium Klinik Prodia', 'tanggal' => \Carbon\Carbon::parse('2025-07-18 10:15:00'), 'status' => 'menunggu', 'jumlah_alat' => 589],
-        ];
-
-        // Urutkan dari yang paling lama supaya nomor urut (001, 002, ...)
-        // konsisten mengikuti kronologi pengajuan, baru kode dibentuk.
-        usort($raw, fn ($a, $b) => $a['tanggal'] <=> $b['tanggal']);
-        foreach ($raw as $i => &$item) {
-            $item['kode'] = sprintf('%03d-%s', $i + 1, $item['tanggal']->format('dmY'));
-        }
-        unset($item);
-
-        // Tampilan (dashboard/riwayat) mengharapkan yang terbaru di atas.
-        return array_reverse($raw);
-    }
-}
 
 
 /*
@@ -276,11 +242,13 @@ if (! function_exists('uptdBeritaData')) {
 */
 
 Route::get('/', function () {
-    return view('home.index');
+    $setting = Setting::current();
+    return view('home.index', compact('setting'));
 })->name('home');
 
 Route::get('/profil', function () {
-    return view('pages.profil');
+    $setting = Setting::current();
+    return view('pages.profil', compact('setting'));
 })->name('profil');
 
 Route::get('/layanan', function () {
@@ -392,23 +360,29 @@ Route::get('/dashboard', function () {
     if ($redirect = guardMember('Silakan login terlebih dahulu untuk mengakses Dashboard.')) {
         return $redirect;
     }
-    $pengajuanList = uptdPengajuanData();
 
-    // Ambil kalibrasi yang ditolak karena dokumen dan masih bisa diupload ulang
+    \App\Models\CalibrationRequest::autoPromoteScheduled();
     \App\Models\CalibrationRequest::autoExpireResubmitWindow();
-    $rejectedDocCalibrations = \App\Models\CalibrationRequest::where('user_id', auth()->id())
-        ->where('status', 'Ditolak')
+
+    $userCalibrations = \App\Models\CalibrationRequest::where('user_id', auth()->id())
+        ->latest();
+
+    $allCalibrations = $userCalibrations->get();
+    $statusCounts = $allCalibrations->groupBy('status')->map->count()->all();
+
+    $rejectedDocCalibrations = $allCalibrations->where('status', 'Ditolak')
         ->where('rejection_reason', 'Dokumen')
         ->where('allow_resubmit', true)
         ->whereNotNull('resubmit_deadline')
         ->where('resubmit_deadline', '>', now())
-        ->latest()
-        ->get();
+        ->sortByDesc('resubmit_deadline');
 
     return view('member.dashboard', [
         'memberUser'              => currentMemberUser(),
-        'riwayatTerbaru'          => array_slice($pengajuanList, 0, 5),
-        'statusTerakhir'          => $pengajuanList[0] ?? null,
+        'riwayatTerbaru'          => $allCalibrations->take(5),
+        'statusTerakhir'          => $allCalibrations->first(),
+        'statusCounts'            => $statusCounts,
+        'activeCount'            => $allCalibrations->whereNotIn('status', ['Selesai'])->count(),
         'rejectedDocCalibrations' => $rejectedDocCalibrations,
     ]);
 })->name('dashboard');
@@ -426,7 +400,17 @@ Route::get('/dashboard/riwayat', function () {
     if ($redirect = guardMember('Silakan login terlebih dahulu untuk melihat riwayat pengajuan.')) {
         return $redirect;
     }
+
+    \App\Models\CalibrationRequest::autoPromoteScheduled();
+    \App\Models\CalibrationRequest::autoExpireResubmitWindow();
+
+    $query = \App\Models\CalibrationRequest::where('user_id', auth()->id())->latest();
+    $allCalibrations = $query->get();
+    $statusCounts = $allCalibrations->groupBy('status')->map->count()->all();
+
     return view('member.riwayat', [
-        'riwayatList' => uptdPengajuanData(),
+        'riwayatList'  => $query->paginate(10),
+        'statusCounts' => $statusCounts,
+        'totalCount'   => $allCalibrations->count(),
     ]);
 })->name('dashboard.riwayat');

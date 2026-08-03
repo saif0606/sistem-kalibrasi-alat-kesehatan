@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CalibrationRequest;
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class CalibrationController extends Controller
 {
@@ -216,11 +218,49 @@ if ($isDitolakNow) {
             'daftar_alat'        => $daftarAlatAfterUpdate,
         ]);
 
+        // Kirim update ke Google Sheets (via Webhook) untuk sinkronisasi data pesanan
+        try {
+            $webhook = config('services.sheets.webhook_url') ?? Setting::current()->sheets_webhook_url;
+            if (!empty($webhook)) {
+                $response = Http::timeout(15)->asJson()->post($webhook, [
+                    'action' => 'update',
+                    'registration_number' => $calibration->registration_number,
+                    'status' => $calibration->status,
+                    'certificate_file' => $calibration->certificate?->file_path ?? null,
+                    'certificate_number' => $calibration->certificate?->certificate_number ?? null,
+                    'admin_note' => $calibration->admin_note,
+                    'link_admin' => url(route('admin.calibrations.show', $calibration->id)),
+                ]);
+
+                if ($response->failed() || ($response->json('ok') ?? null) === false) {
+                    \Illuminate\Support\Facades\Log::warning('Sheets webhook (update) gagal: status ' . $response->status() . ' | body: ' . \Illuminate\Support\Str::limit($response->body(), 500));
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim update ke sheets webhook: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.calibrations.index')->with('success', 'Status Kalibrasi berhasil diupdate');
     }
 
     public function destroy(CalibrationRequest $calibration)
     {
+        try {
+            $webhook = config('services.sheets.webhook_url') ?? Setting::current()->sheets_webhook_url;
+            if (!empty($webhook)) {
+                $response = Http::timeout(15)->asJson()->post($webhook, [
+                    'action' => 'delete',
+                    'registration_number' => $calibration->registration_number,
+                ]);
+
+                if ($response->failed() || ($response->json('ok') ?? null) === false) {
+                    \Illuminate\Support\Facades\Log::warning('Sheets webhook (delete) gagal: status ' . $response->status() . ' | body: ' . \Illuminate\Support\Str::limit($response->body(), 500));
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim delete ke sheets webhook: ' . $e->getMessage());
+        }
+
         $calibration->delete();
         return redirect()->route('admin.calibrations.index')->with('success', 'Data pengajuan berhasil dihapus');
     }

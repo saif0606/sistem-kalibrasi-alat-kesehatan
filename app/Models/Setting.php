@@ -10,6 +10,7 @@ class Setting extends Model
         'sertifikat_kan',
         'surat_operasional',
         'spreadsheet_url',
+        'sheets_webhook_url',
     ];
 
     /**

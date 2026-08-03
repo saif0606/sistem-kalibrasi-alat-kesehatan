@@ -6,35 +6,30 @@
 
     @php
         // $memberUser, $riwayatTerbaru & $statusTerakhir dikirim dari route
-        // (routes/web.php) — bersumber dari user yang sedang login +
-        // uptdPengajuanData(), bukan lagi data dummy lokal di file ini.
-
-        // ==================================================================
-        // DATA DUMMY — angka ringkasan di bawah ini nantinya diganti
-        // query ke Model (Pengajuan::where('user_id', ...), dst).
-        // ==================================================================
+        // (routes/web.php) — sekarang bersumber langsung dari tabel
+        // calibration_requests milik user yang sedang login.
 
         $stats = [
-            ['label' => 'Pengajuan Aktif', 'value' => 4, 'icon' => 'bi-folder2-open', 'tone' => 'green'],
-            ['label' => 'Menunggu Verifikasi', 'value' => 2, 'icon' => 'bi-hourglass-split', 'tone' => 'amber'],
-            ['label' => 'Sedang Diproses', 'value' => 3, 'icon' => 'bi-gear-wide-connected', 'tone' => 'blue'],
-            ['label' => 'Selesai', 'value' => 8, 'icon' => 'bi-check-circle', 'tone' => 'green'],
+            ['label' => 'Pengajuan Aktif', 'value' => $activeCount, 'icon' => 'bi-folder2-open', 'tone' => 'green'],
+            ['label' => 'Menunggu Verifikasi', 'value' => $statusCounts['Pengajuan'] ?? 0, 'icon' => 'bi-hourglass-split', 'tone' => 'amber'],
+            ['label' => 'Sedang Diproses', 'value' => $statusCounts['Kalibrasi'] ?? 0, 'icon' => 'bi-gear-wide-connected', 'tone' => 'blue'],
+            ['label' => 'Selesai', 'value' => $statusCounts['Selesai'] ?? 0, 'icon' => 'bi-check-circle', 'tone' => 'green'],
         ];
 
         $statusMeta = [
-            'menunggu' => ['label' => 'Menunggu Verifikasi', 'class' => 'status-menunggu'],
-            'jadwal'   => ['label' => 'Menunggu Jadwal', 'class' => 'status-jadwal'],
-            'diproses' => ['label' => 'Diproses', 'class' => 'status-diproses'],
-            'selesai'  => ['label' => 'Selesai', 'class' => 'status-selesai'],
-            'ditolak'  => ['label' => 'Ditolak', 'class' => 'status-ditolak'],
+            'Pengajuan'   => ['label' => 'Menunggu Verifikasi', 'class' => 'status-menunggu'],
+            'Penjadwalan' => ['label' => 'Menunggu Jadwal', 'class' => 'status-jadwal'],
+            'Kalibrasi'   => ['label' => 'Diproses', 'class' => 'status-diproses'],
+            'Selesai'     => ['label' => 'Selesai', 'class' => 'status-selesai'],
+            'Ditolak'     => ['label' => 'Ditolak', 'class' => 'status-ditolak'],
         ];
 
         $statusProgress = [
-            'menunggu' => 15,
-            'jadwal' => 40,
-            'diproses' => 65,
-            'selesai' => 100,
-            'ditolak' => 100,
+            'Pengajuan'   => 15,
+            'Penjadwalan' => 40,
+            'Kalibrasi'   => 65,
+            'Selesai'     => 100,
+            'Ditolak'     => 100,
         ];
 
         $informasiTerbaru = [
@@ -166,13 +161,13 @@
                             </thead>
                             <tbody>
                                 @foreach ($riwayatTerbaru as $item)
-                                    @php $meta = $statusMeta[$item['status']]; @endphp
+                                    @php $meta = $statusMeta[$item->status]; @endphp
                                     <tr>
-                                        <td class="dash-table-code">{{ $item['kode'] }}</td>
-                                        <td>{{ $item['tanggal']->translatedFormat('d M Y') }}</td>
+                                        <td class="dash-table-code">{{ $item->registration_number }}</td>
+                                        <td>{{ ($item->request_date ?? $item->created_at)->translatedFormat('d M Y') }}</td>
                                         <td><span class="status-badge {{ $meta['class'] }}">{{ $meta['label'] }}</span></td>
                                         <td class="text-end">
-                                            <a href="{{ route('user.calibrations.show', $item['kode']) }}#top" class="dash-table-action">
+                                            <a href="{{ route('user.calibrations.show', $item->id) }}#top" class="dash-table-action">
                                                 Lihat Detail <i class="bi bi-chevron-right"></i>
                                             </a>
                                         </td>
@@ -201,21 +196,21 @@
                 {{-- 5. Status Terakhir --}}
                 @if ($statusTerakhir)
                     @php
-                        $statusTerakhirMeta = $statusMeta[$statusTerakhir['status']];
-                        $statusTerakhirProgress = $statusProgress[$statusTerakhir['status']];
+                        $statusTerakhirMeta = $statusMeta[$statusTerakhir->status] ?? ['label' => ucwords($statusTerakhir->status), 'class' => 'status-menunggu', 'desc' => 'Sedang diproses.'];
+                        $statusTerakhirProgress = $statusProgress[$statusTerakhir->status] ?? 0;
                     @endphp
                     <div class="col-lg-5" data-aos="fade-up">
                         <div class="dash-status-card">
                             <span class="dash-status-badge-label">Status Terakhir</span>
-                            <h3 class="dash-status-code">{{ $statusTerakhir['kode'] }}</h3>
+                            <h3 class="dash-status-code">{{ $statusTerakhir->registration_number }}</h3>
                             <p class="dash-status-text">
                                 Status: <strong>{{ $statusTerakhirMeta['label'] }}</strong>
                             </p>
                             <div class="dash-progress">
-                                <div class="dash-progress-bar" style="width: {{ $statusTerakhirProgress }}%"></div>
+                                <div class="dash-progress-bar"></div>
                             </div>
                             <span class="dash-progress-percent">{{ $statusTerakhirProgress }}% selesai</span>
-                            <a href="{{ route('user.calibrations.show', $statusTerakhir['kode']) }}#top" class="btn btn-hero-outline dash-status-btn">
+                            <a href="{{ route('user.calibrations.show', $statusTerakhir->id) }}#top" class="btn btn-hero-outline dash-status-btn">
                                 Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>
