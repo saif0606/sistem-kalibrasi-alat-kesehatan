@@ -1196,7 +1196,7 @@ img.emoji {
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Bagaimana jika saat pemeriksaan ditemukan alat dalam kondisi rusak atau tidak berfungsi?')">Alat Rusak/Tidak Berfungsi</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah sertifikat kalibrasi tersedia dalam bentuk digital (soft file), tidak hanya fisik?')">Sertifikat Digital</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Berapa harga kalibrasi untuk masing-masing jenis alat kesehatan?')">Daftar Harga Kalibrasi</button>
-            <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah terdapat tambahan pajak dalam pembayaran jasa kalibrasi')">Tambahan Pajak</button>
+            <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah ada pajak dalam pembayaran jasa kalibrasi')">Apakah ada pajak</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Melalui sistem apa pembayaran biaya kalibrasi dilakukan?')">Sistem Pembayaran</button>
         </div>
     </div>

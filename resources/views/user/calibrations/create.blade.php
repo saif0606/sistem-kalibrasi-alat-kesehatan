@@ -324,7 +324,7 @@
                     </div>
                     <div class="upload-dropzone-text">
                         <strong>Klik untuk unggah</strong> atau seret file ke sini (bisa lebih dari satu)<br>
-                        <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-500); display: block; margin-top: 6px;">Wajib menyertakan dokumen pengajuan resmi dan daftar alat yang akan dikalibrasi beserta jumlahnya</span>
+                        <span style="font-size: 0.85rem; font-weight: bold; color: var(--text-500); display: block; margin-top: 6px;">Wajib menyertakan dokumen pengajuan resmi dan daftar alat yang akan dikalibrasi beserta jumlahnya</span>
                     </div>
                     <div class="upload-dropzone-hint mt-2">
                         Hanya file PDF &middot; maksimal 10 MB per file
