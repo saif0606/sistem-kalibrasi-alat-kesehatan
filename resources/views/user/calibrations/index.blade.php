@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded',function(){
                                 <div class="saibara-step-num">1</div>
                                 <div>
                                     <div class="saibara-step-title">Login / Daftar Akun</div>
-                                    <div class="saibara-step-desc">Pilih <strong>Perorangan</strong> jika alat milik pribadi. Pilih <strong>Instansi</strong> hanya jika mendaftar atas nama lembaga — pastikan memilih instansi yang benar agar tidak tertukar dengan alat milik instansi lain.</div>
+                                    <div class="saibara-step-desc">Pilih <strong>Perorangan</strong> jika alat yang akan dikalibrasi merupakan milik atau tanggung jawab pribadi Anda. Pilih <strong>Instansi</strong> jika pengajuan dilakukan atas nama lembaga atau organisasi. Jika khawatir alat tertukar dengan milik instansi lain, Anda tetap bisa mendaftar sebagai <strong>Perorangan</strong> meskipun pengajuan dilakukan untuk keperluan kerja.</div>
                                 </div>
                             </div>
                             <div class="saibara-step">
@@ -925,7 +925,7 @@ document.addEventListener('DOMContentLoaded',function(){
                                 <div class="saibara-step-num">5</div>
                                 <div>
                                     <div class="saibara-step-title">Pilih Alat yang Akan Dikalibrasi</div>
-                                    <div class="saibara-step-desc">Alat lebih dari satu? Gunakan <strong>Tambah ke Keranjang</strong>. Hanya satu alat? Langsung <strong>Checkout</strong>.</div>
+                                    <div class="saibara-step-desc"><strong>Jika alat yang akan dikalibrasi lebih dari satu, masukkan ke keranjang terlebih dahulu.</strong> Jika hanya satu alat, silakan langsung checkout.</div>
                                 </div>
                             </div>
                             <div class="saibara-step">
