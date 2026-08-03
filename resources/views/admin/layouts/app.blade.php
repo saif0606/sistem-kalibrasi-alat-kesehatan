@@ -299,15 +299,18 @@
         }
 
         .topbar-toggler {
-            width: 40px; height: 40px;
-            background: transparent;
+            width: 40px;
+            height: 40px;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--card-blur));
+            -webkit-backdrop-filter: blur(var(--card-blur));
             border: 1.5px solid var(--card-border);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-            color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s;
+            color: var(--text-primary);
+            font-size: 1.2rem;
         }
         .topbar-toggler:hover { background: rgba(30,148,71,0.08); border-color: var(--green-600); color: var(--green-600); }
 
@@ -349,17 +352,20 @@
         /* Notification bell */
         .notif-btn {
             width: 40px; height: 40px;
-            background: transparent;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--card-blur));
+            -webkit-backdrop-filter: blur(var(--card-blur));
             border: 1.5px solid var(--card-border);
-            border-radius: 10px;
+            border-radius: 12px; /* Kotak dengan curve yang proporsional */
             display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem;
-            color: var(--text-secondary);
+            color: var(--text-primary);
             cursor: pointer;
             position: relative;
             transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .notif-btn:hover { border-color: var(--blue-600); color: var(--blue-600); }
+        .notif-btn:hover { border-color: var(--blue-600); color: var(--blue-600); transform: translateY(-2px); }
         .notif-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--green-600); color: #fff;
@@ -703,6 +709,9 @@
     <!-- Topbar -->
     <header class="topbar">
         <div class="topbar-left">
+            <button type="button" class="topbar-toggler d-md-none me-2" id="mobileTopbarToggler" title="Buka Menu">
+                <i class="bi bi-layout-sidebar-inset"></i>
+            </button>
             <div class="topbar-breadcrumb">
                 <span class="topbar-breadcrumb-eyebrow">UPTD Kalibrasi</span>
                 <span class="topbar-breadcrumb-title">@yield('page_title', 'Dashboard')</span>
@@ -856,16 +865,26 @@ const sidebar     = document.getElementById('sidebar');
 const mainContent = document.getElementById('mainContent');
 const toggler     = document.getElementById('sidebarToggler');
 const overlay     = document.getElementById('sidebarOverlay');
+const mobileTopbarToggler = document.getElementById('mobileTopbarToggler');
 
-toggler.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('mobile-open');
-        overlay.style.display = sidebar.classList.contains('mobile-open') ? 'block' : 'none';
-    } else {
-        sidebar.classList.toggle('mini');
-        mainContent.classList.toggle('expanded');
-    }
-});
+if (toggler) {
+    toggler.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('mobile-open');
+            overlay.style.display = sidebar.classList.contains('mobile-open') ? 'block' : 'none';
+        } else {
+            sidebar.classList.toggle('mini');
+            mainContent.classList.toggle('expanded');
+        }
+    });
+}
+
+if (mobileTopbarToggler) {
+    mobileTopbarToggler.addEventListener('click', () => {
+        sidebar.classList.add('mobile-open');
+        overlay.style.display = 'block';
+    });
+}
 
 overlay.addEventListener('click', () => {
     sidebar.classList.remove('mobile-open');

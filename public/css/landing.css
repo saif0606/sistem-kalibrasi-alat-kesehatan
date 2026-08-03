@@ -176,14 +176,22 @@ img{max-width:100%;display:block;}
 
 .notif-btn {
     width: 38px; height: 38px;
-    background: transparent;
-    border: 1.5px solid rgba(0,0,0,0.1);
-    border-radius: 10px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 12px; /* Kotak curve proporsional */
     display: flex; align-items: center; justify-content: center;
     font-size: 1.05rem;
-    color: #3d5468;
+    color: var(--blue-900);
     cursor: pointer;
     position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+.notif-btn:hover {
+    background: rgba(255,255,255,0.9);
+    transform: translateY(-2px);
 }
 .notif-badge {
     position: absolute; top: -4px; right: -4px;

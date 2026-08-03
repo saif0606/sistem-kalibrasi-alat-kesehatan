@@ -20,7 +20,7 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.15rem;
     color: var(--color-heading, #0F172A);
