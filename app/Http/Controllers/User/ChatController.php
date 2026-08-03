@@ -318,9 +318,7 @@ public function unreadCount()
         if (count($matched) === 1) {
             $nama  = array_key_first($matched);
             $harga = $matched[$nama];
-            return "Tarif kalibrasi untuk **{$nama}** adalah **Rp" . number_format($harga, 0, ',', '.') .
-                   "** (berdasarkan Perda Provinsi Lampung No. 4 Tahun 2024). " .
-                   "Harga tersebut belum termasuk biaya akomodasi tenaga teknis.";
+            return "Harga Kalibrasi {$nama}: Rp" . number_format($harga, 0, ',', '.') . ". Namun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis. Hal ini sudah ditulis pada Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024.";
         }
 
         // Lebih dari 1 alat disebutkan -> tampilkan daftar khusus alat yang disebut
@@ -328,9 +326,9 @@ public function unreadCount()
         foreach ($matched as $nama => $harga) {
             $lines[] = "• {$nama}: Rp" . number_format($harga, 0, ',', '.');
         }
-        return "Berikut tarif kalibrasi untuk alat yang Anda sebutkan (Perda Lampung No. 4 Tahun 2024):\n" .
+        return "Harga Kalibrasi berdasarkan Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024:\n" .
                implode("\n", $lines) .
-               "\n\nHarga di atas belum termasuk biaya akomodasi tenaga teknis.";
+               "\n\nNamun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis.";
     }
 
     /**
