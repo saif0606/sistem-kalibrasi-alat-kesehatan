@@ -141,25 +141,72 @@ public function unreadCount()
         $THRESHOLD = 0.6;
 
         try {
-            $response = Http::timeout(15)
-                ->withoutVerifying() // Bypass SSL verification for local dev with ngrok
-                ->post(
-                'https://subradiative-neoma-unnibbled.ngrok-free.dev/predict',
-                ['text' => $pesanUser]
-            );
+            // Langkah A: POST untuk mendapatkan event_id
+            $postResponse = Http::timeout(15)
+                ->withoutVerifying()
+                ->withToken(env('HF_TOKEN'))
+                ->post('https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict', [
+                    'data' => [$pesanUser]
+                ]);
 
-            if (!$response->successful()) {
-                throw new \Exception('API tidak merespons dengan status: ' . $response->status());
+            if (!$postResponse->successful()) {
+                throw new \Exception('API POST tidak merespons dengan status: ' . $postResponse->status());
             }
 
-           // SESUDAH
-           $hasil = $response->json();
-           $intent = $hasil['intent'] ?? null;
-           $confidence = $hasil['confidence'] ?? 0;
+            $eventId = $postResponse->json('event_id');
+            if (!$eventId) {
+                throw new \Exception('Tidak mendapat event_id dari API Hugging Face');
+            }
+
+            // Langkah B: GET hasil prediksi menggunakan event_id
+            $getResponse = Http::timeout(45)
+                ->withoutVerifying()
+                ->withToken(env('HF_TOKEN'))
+                ->get("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict/{$eventId}");
+
+            if (!$getResponse->successful()) {
+                throw new \Exception('API GET tidak merespons dengan status: ' . $getResponse->status());
+            }
+
+            $responseBody = $getResponse->body();
+            
+            // Karena responsenya SSE (Server-Sent Events), kita cari baris "data: [...]"
+            $intent = null;
+            $confidence = 0;
+            
+            if (preg_match('/data: (\[.*?\])/', $responseBody, $matches)) {
+                $parsedData = json_decode($matches[1], true);
+                if (is_array($parsedData) && isset($parsedData[0]['intent'])) {
+                    $intent = $parsedData[0]['intent'];
+                    $confidence = (float) ($parsedData[0]['confidence'] ?? 0);
+                } elseif (is_array($parsedData) && count($parsedData) >= 2 && is_string($parsedData[0])) {
+                    // Fallback if it returns ["intent_name", 0.95]
+                    $intent = $parsedData[0];
+                    $confidence = (float) $parsedData[1];
+                }
+            } else {
+                throw new \Exception('Format respons API tidak dikenali: ' . $responseBody);
+            }
+
            $attachment = null; // dipakai kalau ada intent yang perlu kirim file (mis. panduan PDF)
            
+           $fallbackMessage = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+
            if ($confidence < $THRESHOLD || !$intent) {
-            $jawabanBot = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+               // Cek apakah bot sudah mengirim pesan fallback ini dalam 1 jam terakhir
+               $recentFallback = ChatMessage::where('user_id', Auth::id())
+                   ->where('sender_role', 'bot')
+                   ->where('message', $fallbackMessage)
+                   ->where('created_at', '>=', now()->subHour())
+                   ->exists();
+
+               if ($recentFallback) {
+                   // Jika sudah pernah, jangan balas apa-apa, agar tidak spam.
+                   // Pesan user tetap tersimpan dari fungsi store() sebelumnya.
+                   return;
+               }
+
+               $jawabanBot = $fallbackMessage;
             } elseif ($intent === 'harga_kalibrasi_alat') {
                 $jawabanBot = $this->jawabHargaAlat($pesanUser);
                 } elseif (in_array($intent, ['cara_bayar_saibara', 'sistem_pembayaran', 'wajib_pakai_saibara'])) {
@@ -304,9 +351,7 @@ public function unreadCount()
         if (count($matched) === 1) {
             $nama  = array_key_first($matched);
             $harga = $matched[$nama];
-            return "Tarif kalibrasi untuk **{$nama}** adalah **Rp" . number_format($harga, 0, ',', '.') .
-                   "** (berdasarkan Perda Provinsi Lampung No. 4 Tahun 2024). " .
-                   "Harga tersebut belum termasuk biaya akomodasi tenaga teknis.";
+            return "Harga Kalibrasi {$nama}: Rp" . number_format($harga, 0, ',', '.') . ". Namun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis. Hal ini sudah ditulis pada Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024.";
         }
 
         // Lebih dari 1 alat disebutkan -> tampilkan daftar khusus alat yang disebut
@@ -314,9 +359,9 @@ public function unreadCount()
         foreach ($matched as $nama => $harga) {
             $lines[] = "• {$nama}: Rp" . number_format($harga, 0, ',', '.');
         }
-        return "Berikut tarif kalibrasi untuk alat yang Anda sebutkan (Perda Lampung No. 4 Tahun 2024):\n" .
+        return "Harga Kalibrasi berdasarkan Peraturan Daerah Provinsi Lampung Nomor 4 Tahun 2024:\n" .
                implode("\n", $lines) .
-               "\n\nHarga di atas belum termasuk biaya akomodasi tenaga teknis.";
+               "\n\nNamun tarif yang tertera belum termasuk biaya akomodasi tenaga teknis.";
     }
 
     /**
