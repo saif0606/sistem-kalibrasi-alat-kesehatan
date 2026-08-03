@@ -33,7 +33,6 @@ class ServiceController extends Controller
         ]);
 
         $validated['is_kan'] = $request->boolean('is_kan');
-        $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');
@@ -67,10 +66,6 @@ class ServiceController extends Controller
 
         $validated['is_kan'] = $request->boolean('is_kan');
 
-        if ($service->name !== $validated['name']) {
-            $validated['slug'] = $this->uniqueSlug($validated['name'], $service->id);
-        }
-
         if ($request->hasFile('image')) {
             if ($service->image) {
                 Storage::disk('public')->delete($service->image);
@@ -82,21 +77,6 @@ class ServiceController extends Controller
 
         return redirect()->route('admin.services.index')
             ->with('success', 'Layanan berhasil diperbarui.');
-    }
-
-    private function uniqueSlug(string $name, ?int $ignoreId = null): string
-    {
-        $base = Str::slug($name);
-        $slug = $base;
-        $i = 1;
-
-        while (Service::where('slug', $slug)
-            ->when($ignoreId, fn($query) => $query->where('id', '<>', $ignoreId))
-            ->exists()) {
-            $slug = $base . '-' . $i++;
-        }
-
-        return $slug;
     }
 
     public function destroy(Service $service)

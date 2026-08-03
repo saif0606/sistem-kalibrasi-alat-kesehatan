@@ -141,19 +141,37 @@ public function unreadCount()
         $THRESHOLD = 0.6;
 
         try {
-            $response = Http::timeout(15)
-                ->withoutVerifying() // Bypass SSL verification for local dev with ngrok
-                ->post(
-                'https://subradiative-neoma-unnibbled.ngrok-free.dev/predict',
-                ['text' => $pesanUser]
-            );
+            // ── Call Gradio Space Queue API ──────────────
+            // 1. Submit to queue
+            $initResponse = Http::timeout(10)
+                ->post("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict", [
+                    'data' => [$pesanUser],
+                ]);
 
-            if (!$response->successful()) {
-                throw new \Exception('API tidak merespons dengan status: ' . $response->status());
+            if (!$initResponse->successful()) {
+                throw new \Exception('Gagal menghubungi chatbot AI.');
             }
 
-           // SESUDAH
-           $hasil = $response->json();
+            $eventId = $initResponse->json('event_id');
+
+            // 2. Poll/wait for result stream
+            $streamResponse = Http::timeout(30)
+                ->get("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict/{$eventId}");
+
+            $streamData = $streamResponse->body();
+            
+            // Extract the 'data: [...]' JSON from the Server-Sent Events stream
+            if (!preg_match('/data:\s*(\[.*?\])/', $streamData, $matches)) {
+                throw new \Exception('Format respons AI tidak dikenali.');
+            }
+
+            $predictions = json_decode($matches[1], true);
+            $best = $predictions[0] ?? null;
+
+            $hasil = [
+                'intent'     => $best['intent'] ?? null,
+                'confidence' => $best['confidence']  ?? 0,
+            ];
            $intent = $hasil['intent'] ?? null;
            $confidence = $hasil['confidence'] ?? 0;
            $attachment = null; // dipakai kalau ada intent yang perlu kirim file (mis. panduan PDF)

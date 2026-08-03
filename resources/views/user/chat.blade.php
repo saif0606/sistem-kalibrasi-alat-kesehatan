@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Chat - UPTD Kalibrasi')
 @section('hide_chrome', true)
@@ -15,7 +15,7 @@ body.chat-page-body main {
     display: flex; flex-direction: column;
     overflow: hidden;
     z-index: 1; position: relative;
-    /* Offset fixed navbar — adjust --navbar-h to match your actual navbar height */
+    /* Offset fixed navbar â€” adjust --navbar-h to match your actual navbar height */
     padding-top: 0 !important;
     margin-top: 0 !important;
 }
@@ -762,7 +762,7 @@ body.chat-page-body .back-to-top { display: none !important; }
     object-fit: contain;
 }
 
-/* ===== CHAT INPUT BAR — Modern Redesign ===== */
+/* ===== CHAT INPUT BAR â€” Modern Redesign ===== */
 .chat-input-bar {
     background: var(--panel-bg);
     backdrop-filter: var(--glass-blur);
@@ -823,7 +823,7 @@ body.chat-page-body .back-to-top { display: none !important; }
 }
 .chat-input-left-actions { display: flex; align-items: center; gap: 6px; }
 
-/* Action buttons — pill style */
+/* Action buttons â€” pill style */
 .btn-action-pill {
     display: inline-flex;
     align-items: center;
@@ -910,7 +910,7 @@ img.emoji {
     <div class="chat-user-header">
         <div class="avatar"><i class="bi bi-headset"></i></div>
         <div class="info">
-            <h6>UPTD Kalibrasi<span class="header-subtitle"> – Customer Service</span></h6>
+            <h6>UPTD Kalibrasi<span class="header-subtitle"> â€“ Customer Service</span></h6>
             <small class="header-desc">Ajukan pertanyaan seputar layanan kalibrasi Anda</small>
         </div>
         <a href="https://api.whatsapp.com/send/?phone=6281292923438&text=Halo%20UPTD%20Kalibrasi%2C%20saya%20ingin%20bertanya%20mengenai%20layanan%20kalibrasi.&type=phone_number&app_absent=0"
@@ -1194,9 +1194,8 @@ img.emoji {
         <div class="quick-replies-scroll">
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah laboratorium memiliki akreditasi resmi sesuai standar ISO/IEC 17025 dari Komite Akreditasi Nasional (KAN)?')">Info Akreditasi KAN</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Bagaimana jika saat pemeriksaan ditemukan alat dalam kondisi rusak atau tidak berfungsi?')">Alat Rusak/Tidak Berfungsi</button>
-            <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah sertifikat kalibrasi tersedia dalam bentuk digital (soft file), tidak hanya fisik?')">Sertifikat Digital</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Berapa harga kalibrasi untuk masing-masing jenis alat kesehatan?')">Daftar Harga Kalibrasi</button>
-            <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah terdapat tambahan pajak dalam pembayaran jasa kalibrasi')">Tambahan Pajak</button>
+            <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Apakah ada pajak dalam pembayaran jasa kalibrasi')">Apakah ada pajak?</button>
             <button type="button" class="quick-reply-chip" onclick="fillQuickReply('Melalui sistem apa pembayaran biaya kalibrasi dilakukan?')">Sistem Pembayaran</button>
         </div>
     </div>
@@ -1420,7 +1419,7 @@ async function sendSticker(url, filename) {
     }
 }
 
-// ── Context Menu (Right-click / long-press) ────────────────────────────────
+// â”€â”€ Context Menu (Right-click / long-press) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let contextTargetMsg = null; // { id, text, senderName, attachment }
 
 function showContextMenu(e, msgId, msgText, senderName, attachmentUrl) {
@@ -1442,7 +1441,7 @@ document.addEventListener('click', () => {
     if (menu) menu.style.display = 'none';
 });
 
-// ── Reply state ────────────────────────────────────────────────────────────
+// â”€â”€ Reply state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let replyToMsgId   = null;
 
 function doReply() {
@@ -1534,7 +1533,7 @@ async function doDelete() {
     }
 }
 
-// Single-file guard — show warning toast if file already chosen
+// Single-file guard â€” show warning toast if file already chosen
 document.addEventListener('DOMContentLoaded', () => {
     const attachInput = document.getElementById('chatAttachment');
     if (attachInput) {
@@ -1619,7 +1618,7 @@ function previewDraftHarga(regNumber) {
         }, 350);
     }
 
-    // ── Resizable panel ────────────────────────────────────────────────────────
+    // â”€â”€ Resizable panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     (function initResizer() {
         const resizer = document.getElementById('sidePanelResizer');
         const panel   = document.getElementById('docSidePanel');
@@ -2000,7 +1999,7 @@ function resizeImage(file, maxDimension = 1600, quality = 0.8) {
     });
 }
 
-// ── Send message via AJAX ──────────────────────────────────────────────────────
+// â”€â”€ Send message via AJAX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function sendMessage() {
     const rawText = chatInput.value.trim();
     const fileInput = document.getElementById('chatAttachment');
@@ -2115,7 +2114,7 @@ async function sendMessage() {
 sendBtn.addEventListener('click', sendMessage);
 chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
-// ── Poll for new messages from admin ─────────────────────────────────────────
+// â”€â”€ Poll for new messages from admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function pollMessages() {
     try {
         const res  = await fetch(pollUrl + '?_=' + Date.now(), { headers: { 'Accept': 'application/json' } });
@@ -2177,3 +2176,6 @@ scrollToBottom(false);
 setInterval(pollMessages, 3000);
 </script>
 @endpush
+
+
+
