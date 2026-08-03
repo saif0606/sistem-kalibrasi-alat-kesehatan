@@ -8,6 +8,7 @@ use App\Models\FaqAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use App\Services\GoogleSheetsService;
 use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
@@ -101,6 +102,19 @@ public function unreadCount()
             'attachment'  => $attachmentPath,
             'is_read'     => false,
         ]);
+
+        // Push ke Google Sheets Tab "Chat"
+        try {
+            $sheets = new GoogleSheetsService();
+            $pesanTeks = $validated['message'] ?? ($attachmentPath ? '[Mengirim File]' : '');
+            $sheets->appendRow('Chat!A:C', [
+                now()->format('d/m/Y H:i:s'),
+                Auth::user()->name . ' (User)',
+                $pesanTeks
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to push chat to Google Sheets: " . $e->getMessage());
+        }
 
         // ============ panggil bot, hanya kalau ada teks & tidak ada attachment ============
         // Jangan panggil bot jika pesan merupakan stiker (format: [STICKER:namafile])
@@ -196,7 +210,6 @@ public function unreadCount()
             
             \Log::info("Bot API Result: ", ['intent' => $intent, 'confidence' => $confidence, 'jawaban' => $jawabanBot]);
 
-            // SESUDAH
             ChatMessage::create([
                 'user_id'     => Auth::id(),
                 'admin_id'    => null,
@@ -206,7 +219,18 @@ public function unreadCount()
                 'intent'      => $intent,
                 'confidence'  => $confidence,
                 'is_read'     => true,
+            ]);
+
+            try {
+                $sheets = new GoogleSheetsService();
+                $sheets->appendRow('Chat!A:C', [
+                    now()->format('d/m/Y H:i:s'),
+                    'Asisten Bot',
+                    $jawabanBot
                 ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to push bot chat to Google Sheets: " . $e->getMessage());
+            }
 
         } catch (\Throwable $e) {
             // API down/timeout -> jangan error ke user, biarkan admin balas manual
@@ -227,6 +251,17 @@ public function unreadCount()
                     'message'     => $offlineMessage,
                     'is_read'     => true,
                 ]);
+
+                try {
+                    $sheets = new GoogleSheetsService();
+                    $sheets->appendRow('Chat!A:C', [
+                        now()->format('d/m/Y H:i:s'),
+                        'Asisten Bot',
+                        $offlineMessage
+                    ]);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to push offline bot chat to Google Sheets: " . $e->getMessage());
+                }
             }
         }
     }

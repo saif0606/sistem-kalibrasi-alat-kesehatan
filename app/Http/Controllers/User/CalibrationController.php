@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CalibrationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\GoogleSheetsService;
 
 class CalibrationController extends Controller
 {
@@ -72,6 +73,23 @@ if ($request->hasFile('daftar_alat')) {
 
         $registrationNumber = str_pad($calibration->id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('d-m-Y');
         $calibration->update(['registration_number' => $registrationNumber]);
+
+        // Push ke Google Sheets Tab "Pesanan"
+        try {
+            $sheets = new GoogleSheetsService();
+            $sheets->appendRow('Pesanan!A:H', [
+                $registrationNumber,
+                now()->format('d/m/Y H:i'),
+                $calibration->nama_instansi,
+                $calibration->alamat_lengkap,
+                $calibration->nama_kontak,
+                '-',
+                '-',
+                '-'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to push to Google Sheets (Pesanan): " . $e->getMessage());
+        }
 
         return redirect()->route('user.calibrations.index')->with('success', 'Pengajuan kalibrasi berhasil dikirim! Nomor registrasi Anda: ' . $registrationNumber);
     }

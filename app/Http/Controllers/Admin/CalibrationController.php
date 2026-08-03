@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CalibrationRequest;
 use Illuminate\Http\Request;
+use App\Services\GoogleSheetsService;
 
 class CalibrationController extends Controller
 {
@@ -215,6 +216,27 @@ if ($isDitolakNow) {
             'draft_harga'        => $draftHargaPath,
             'daftar_alat'        => $daftarAlatAfterUpdate,
         ]);
+
+        if ($validated['status'] === 'Selesai') {
+            try {
+                $sheets = new GoogleSheetsService();
+                $certDibuat = $certificate ? \Illuminate\Support\Carbon::parse($certificate->issued_at)->format('d/m/Y') : '-';
+                $certDiambil = now()->format('d/m/Y'); // Selesai = sertifikat diambil/selesai
+                
+                $sheets->appendRow('Selesai!A:H', [
+                    $calibration->registration_number,
+                    \Illuminate\Support\Carbon::parse($calibration->request_date)->format('d/m/Y H:i'),
+                    $calibration->nama_instansi,
+                    $calibration->alamat_lengkap,
+                    $calibration->nama_kontak,
+                    $calibration->tanggal_kalibrasi ? \Illuminate\Support\Carbon::parse($calibration->tanggal_kalibrasi)->format('d/m/Y') : '-',
+                    $certDibuat,
+                    $certDiambil
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to push to Google Sheets (Selesai): " . $e->getMessage());
+            }
+        }
 
         return redirect()->route('admin.calibrations.index')->with('success', 'Status Kalibrasi berhasil diupdate');
     }
