@@ -141,20 +141,47 @@ public function unreadCount()
         $THRESHOLD = 0.6;
 
         try {
-            $response = Http::timeout(15)
-                ->withoutVerifying() // Bypass SSL verification for local dev with ngrok
-                ->post(
-                'https://subradiative-neoma-unnibbled.ngrok-free.dev/predict',
-                ['text' => $pesanUser]
-            );
+            // Langkah A: POST untuk mendapatkan event_id
+            $postResponse = Http::timeout(15)
+                ->withoutVerifying()
+                ->post('https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict', [
+                    'data' => [$pesanUser]
+                ]);
 
-            if (!$response->successful()) {
-                throw new \Exception('API tidak merespons dengan status: ' . $response->status());
+            if (!$postResponse->successful()) {
+                throw new \Exception('API POST tidak merespons dengan status: ' . $postResponse->status());
             }
 
-           $hasil = $response->json();
-           $intent = $hasil['intent'] ?? null;
-           $confidence = $hasil['confidence'] ?? 0;
+            $eventId = $postResponse->json('event_id');
+            if (!$eventId) {
+                throw new \Exception('Tidak mendapat event_id dari API Hugging Face');
+            }
+
+            // Langkah B: GET hasil prediksi menggunakan event_id
+            $getResponse = Http::timeout(45)
+                ->withoutVerifying()
+                ->get("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict/{$eventId}");
+
+            if (!$getResponse->successful()) {
+                throw new \Exception('API GET tidak merespons dengan status: ' . $getResponse->status());
+            }
+
+            $responseBody = $getResponse->body();
+            
+            // Karena responsenya SSE (Server-Sent Events), kita cari baris "data: [...]"
+            $intent = null;
+            $confidence = 0;
+            
+            if (preg_match('/data: (\[.*?\])/', $responseBody, $matches)) {
+                $parsedData = json_decode($matches[1], true);
+                if (is_array($parsedData) && count($parsedData) >= 2) {
+                    $intent = $parsedData[0];
+                    $confidence = (float) $parsedData[1];
+                }
+            } else {
+                throw new \Exception('Format respons API tidak dikenali: ' . $responseBody);
+            }
+
            $attachment = null; // dipakai kalau ada intent yang perlu kirim file (mis. panduan PDF)
            
            $fallbackMessage = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
