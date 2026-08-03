@@ -5,7 +5,7 @@
     <div style="max-width:520px; margin:0 auto; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
         <div style="background:linear-gradient(135deg,#17a45c,#2b6ff0); padding:28px 24px; text-align:center;">
             <div style="margin-bottom:12px;">
-                <img src="{{ asset('images/logo-uptd-transparent.png') }}" alt="Logo UPTD Kalibrasi" style="height:72px; width:auto; object-fit:contain;">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo UPTD Kalibrasi" style="height:72px; width:auto; object-fit:contain;">
             </div>
             <h1 style="color:#fff; font-size:20px; margin:0;">Sertifikat Kalibrasi Anda Sudah Terbit!</h1>
         </div>

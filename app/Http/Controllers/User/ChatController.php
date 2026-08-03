@@ -144,7 +144,7 @@ public function unreadCount()
             // Langkah A: POST untuk mendapatkan event_id
             $postResponse = Http::timeout(15)
                 ->withoutVerifying()
-                ->withToken('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')
+                ->withToken(env('HF_TOKEN'))
                 ->post('https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict', [
                     'data' => [$pesanUser]
                 ]);
@@ -161,7 +161,7 @@ public function unreadCount()
             // Langkah B: GET hasil prediksi menggunakan event_id
             $getResponse = Http::timeout(45)
                 ->withoutVerifying()
-                ->withToken('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')
+                ->withToken(env('HF_TOKEN'))
                 ->get("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict/{$eventId}");
 
             if (!$getResponse->successful()) {
