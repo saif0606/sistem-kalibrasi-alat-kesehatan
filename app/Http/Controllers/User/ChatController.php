@@ -152,14 +152,28 @@ public function unreadCount()
                 throw new \Exception('API tidak merespons dengan status: ' . $response->status());
             }
 
-           // SESUDAH
            $hasil = $response->json();
            $intent = $hasil['intent'] ?? null;
            $confidence = $hasil['confidence'] ?? 0;
            $attachment = null; // dipakai kalau ada intent yang perlu kirim file (mis. panduan PDF)
            
+           $fallbackMessage = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+
            if ($confidence < $THRESHOLD || !$intent) {
-            $jawabanBot = "Maaf, saya kurang yakin dengan pertanyaan Anda. Pesan ini akan diteruskan ke admin kami untuk dibantu langsung.";
+               // Cek apakah bot sudah mengirim pesan fallback ini dalam 1 jam terakhir
+               $recentFallback = ChatMessage::where('user_id', Auth::id())
+                   ->where('sender_role', 'bot')
+                   ->where('message', $fallbackMessage)
+                   ->where('created_at', '>=', now()->subHour())
+                   ->exists();
+
+               if ($recentFallback) {
+                   // Jika sudah pernah, jangan balas apa-apa, agar tidak spam.
+                   // Pesan user tetap tersimpan dari fungsi store() sebelumnya.
+                   return;
+               }
+
+               $jawabanBot = $fallbackMessage;
             } elseif ($intent === 'harga_kalibrasi_alat') {
                 $jawabanBot = $this->jawabHargaAlat($pesanUser);
                 } elseif (in_array($intent, ['cara_bayar_saibara', 'sistem_pembayaran', 'wajib_pakai_saibara'])) {
