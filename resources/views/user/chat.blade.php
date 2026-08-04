@@ -2131,6 +2131,8 @@ async function sendMessage() {
             chatInput.value = rawText; // restore on failure
             console.error('Send error (network/parse):', e);
     } finally {
+        const typingEl = document.getElementById(tempId);
+        if (typingEl) typingEl.remove();
         sendBtn.classList.remove('sending');
         chatInput.focus();
     }
