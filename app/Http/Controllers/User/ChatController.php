@@ -143,7 +143,14 @@ public function unreadCount()
         try {
             // ── Call Gradio Space Queue API ──────────────
             // 1. Submit to queue
+            $token = env('HUGGINGFACE_API_TOKEN');
+            $headers = [];
+            if ($token) {
+                $headers['Authorization'] = 'Bearer ' . $token;
+            }
+
             $initResponse = Http::timeout(10)
+                ->withHeaders($headers)
                 ->post("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict", [
                     'data' => [$pesanUser],
                 ]);
@@ -156,6 +163,7 @@ public function unreadCount()
 
             // 2. Poll/wait for result stream
             $streamResponse = Http::timeout(30)
+                ->withHeaders($headers)
                 ->get("https://ulss104-chatbot-kalibrasi.hf.space/gradio_api/call/predict/{$eventId}");
 
             $streamData = $streamResponse->body();
