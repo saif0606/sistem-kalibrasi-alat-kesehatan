@@ -207,10 +207,10 @@
                 </div>
 
                 <div class="art-form-section">
-                    <div class="art-section-label"><i class="bi bi-text-paragraph"></i> Konten</div>
+                    <div class="art-section-label"><i class="bi bi-text-paragraph"></i> Konten <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#94a3b8;">(opsional)</span></div>
                     <textarea name="content" rows="8"
                         class="art-input @error('content') is-invalid @enderror"
-                        placeholder="Tulis isi artikel di sini..." required>{{ old('content', $article->content) }}</textarea>
+                        placeholder="Tulis isi artikel di sini (opsional)...">{{ old('content', $article->content) }}</textarea>
                     @error('content')<div class="invalid-msg">{{ $message }}</div>@enderror
                 </div>
             </div>
@@ -225,7 +225,7 @@
                             <input type="url" name="link_url" id="linkUrl"
                                 class="art-input @error('link_url') is-invalid @enderror"
                                 value="{{ old('link_url', $article->link_url) }}"
-                                placeholder="https://instagram.com/... (opsional)">
+                                placeholder="https://youtube.com/... atau https://instagram.com/...">
                         </div>
                         <button type="button" onclick="doFetchOg()"
                             style="background:rgba(23,164,92,0.1); color:#17a45c; border:none; border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; white-space:nowrap; cursor:pointer; transition:all 0.18s;"
@@ -310,138 +310,7 @@
 </form>
 
 @push('scripts')
-<script>
-const LOGO_SRC = '{{ asset("images/logo-white.png") }}';
-let uploadSrc = null;
-const EXIST_SRC = '{{ $article->image ? asset("storage/".$article->image) : "" }}';
-let ogSrc = '{{ $article->link_url ?? "" }}'; if (ogSrc === '') ogSrc = null;
-const OG_URL = '{{ route("admin.articles.fetch-og") }}';
-
-const titleInput = document.getElementById('artTitle');
-const previewTitle = document.getElementById('previewTitle');
-titleInput.addEventListener('input', () => {
-    previewTitle.textContent = titleInput.value || 'Judul Artikel';
-});
-
-const previewCat = document.getElementById('previewCat');
-const origPickCat = window.pickCat;
-window.pickCat = function(btn, cat) {
-    if(origPickCat) origPickCat(btn, cat);
-    if(previewCat) if(previewCat) previewCat.textContent = cat;
-};
-
-const contentInput = document.getElementById('artContent');
-const previewSubtitle = document.getElementById('previewSubtitle');
-if (contentInput) {
-    contentInput.addEventListener('input', () => {
-        let txt = contentInput.value.trim();
-        if(txt.length > 60) txt = txt.substring(0, 60) + '...';
-        previewSubtitle.textContent = txt || 'Ringkasan / deskripsi artikel akan tampil di sini...';
-    });
-}
-
-function handleUpload(input) {
-    if (!input.files || !input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        uploadSrc = e.target.result;
-        ogSrc = null; document.getElementById('linkUrl').value = '';
-        const name = input.files[0].name;
-        document.getElementById('dropContent').innerHTML =
-            <div style="font-size:22px;color:#17a45c"><i class="bi bi-check-circle-fill"></i></div>
-             <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-top:6px"> + name + </div>
-             <div style="font-size:11px;color:#94a3b8;margin-top:3px">Klik untuk ganti gambar</div>;
-        refreshPreview();
-    };
-    reader.readAsDataURL(input.files[0]);
-}
-
-function clearUpload() {
-    uploadSrc = null;
-    ogSrc = null;
-    document.getElementById('imgInput').value = '';
-    document.getElementById('linkUrl').value = '';
-    document.getElementById('dropContent').innerHTML =
-        <div style="font-size:30px;color:#17a45c;margin-bottom:8px"><i class="bi bi-cloud-arrow-up"></i></div>
-         <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Seret & lepas gambar di sini</div>
-         <div style="font-size:12px;color:#94a3b8;margin-top:4px">atau klik untuk browse — PNG, JPG, WEBP · maks 5MB</div>;
-    refreshPreview();
-}
-
-function setStatus(type, msg) {
-    const el = document.getElementById('linkStatus');
-    el.innerHTML = '';
-    el.className = 'link-status status-' + type;
-    if (type === 'fetching') {
-        el.innerHTML = <span class="spinner-border spinner-border-sm me-2" style="width:12px;height:12px"></span>  + msg;
-    } else if (type === 'success') {
-        el.innerHTML = <i class="bi bi-check-circle-fill me-1"></i>  + msg;
-    } else if (type === 'failed') {
-        el.innerHTML = <i class="bi bi-x-circle-fill me-1"></i>  + msg;
-    }
-}
-
-async function doFetchOg() {
-    const url = document.getElementById('linkUrl').value.trim();
-    if (!url) return;
-    setStatus('fetching', 'Mengambil gambar dari link...');
-    try {
-        const res  = await fetch(OG_URL + '?url=' + encodeURIComponent(url));
-        const data = await res.json();
-        if (data.image) { ogSrc = data.image; setStatus('success', 'Gambar berhasil diambil!'); }
-        else            { ogSrc = null; setStatus('failed', data.message || 'Tidak ada gambar ditemukan'); }
-    } catch (e) { ogSrc = null; setStatus('failed', 'Gagal mengambil gambar'); }
-    
-    if(ogSrc) uploadSrc = null;
-    refreshPreview();
-}
-
-let timeout = null;
-document.getElementById('linkUrl').addEventListener('input', function() {
-    clearTimeout(timeout);
-    ogSrc = null; document.getElementById('linkStatus').className = ''; document.getElementById('linkStatus').innerHTML = '';
-    if (this.value.trim() === '') refreshPreview();
-    else timeout = setTimeout(doFetchOg, 1200);
-});
-document.getElementById('btnFetch').addEventListener('click', () => {
-    clearTimeout(timeout); doFetchOg();
-});
-
-function refreshPreview() {
-    const img     = document.getElementById('previewImg');
-    const d1 = document.getElementById('srcDot1');
-    const d2 = document.getElementById('srcDot2');
-    const d3 = document.getElementById('srcDot3');
-    
-    if(d1) d1.className = 'source-dot'; 
-    if(d2) d2.className = 'source-dot'; 
-    if(d3) d3.className = 'source-dot';
-    
-    if (uploadSrc) {
-        img.className = 'cover'; img.src = uploadSrc;
-        if(d1) d1.classList.add('active'); 
-    } else if (ogSrc) {
-        img.className = 'cover'; img.src = ogSrc;
-        if(d2) d2.classList.add('active'); 
-    } else {
-        img.className = 'logo-default'; if (EXIST_SRC) { img.src = EXIST_SRC; img.className = 'cover'; if(d3) d3.classList.add('active'); } else { img.src = LOGO_SRC; img.className = 'logo-default'; if(d3) d3.classList.add('active'); }
-        if(d3) d3.classList.add('active'); 
-    }
-}
-
-const dz = document.getElementById('dropZone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('drag-over');
-    if (e.dataTransfer.files[0] && e.dataTransfer.files[0].type.startsWith('image/')) {
-        const dt = new DataTransfer(); dt.items.add(e.dataTransfer.files[0]);
-        const inp = document.getElementById('imgInput'); inp.files = dt.files;
-        handleUpload(inp);
-    }
-});
-refreshPreview();
-</script>
+@include('admin.articles._form-scripts', ['existingImage' => $article->image ? asset('storage/'.$article->image) : null])
 @endpush
 @endsection
 
