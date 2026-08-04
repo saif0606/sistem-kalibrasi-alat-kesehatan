@@ -342,9 +342,11 @@ Route::post('/admin/login', [\App\Http\Controllers\AuthController::class, 'login
 Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->name('register.submit');
 
-Route::get('/lupa-password', function () {
-    return view('auth.forgot-password');
-})->name('lupa-password');
+Route::get('/lupa-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('lupa-password');
+Route::post('/lupa-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->name('lupa-password.submit');
+
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.update');
 
 /*
 |--------------------------------------------------------------------------

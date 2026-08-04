@@ -7,14 +7,25 @@
     <h1 class="auth-locked-title">Lupa Password?</h1>
     <p class="auth-locked-subtitle">Masukkan email akun Anda, kami akan mengirimkan tautan untuk membuat password baru.</p>
 
-    {{-- Frontend siap diintegrasikan dengan Illuminate\Auth\Notifications\ResetPassword (belum ada backend) --}}
-    <form class="auth-locked-form" method="POST" action="#">
+    @if (session('status'))
+        <div class="auth-locked-notice">
+            <i class="bi bi-check-circle-fill"></i> {{ session('status') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="auth-locked-notice auth-locked-notice-error">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ $errors->first() }}
+        </div>
+    @endif
+
+    <form class="auth-locked-form" method="POST" action="{{ route('lupa-password.submit') }}">
         @csrf
         <div class="auth-locked-field">
             <label for="forgot-email">Email</label>
             <div class="auth-locked-input-group">
                 <i class="bi bi-envelope"></i>
-                <input type="email" id="forgot-email" name="email" placeholder="nama@instansi.go.id" required autocomplete="username">
+                <input type="email" id="forgot-email" name="email" value="{{ old('email') }}" placeholder="nama@instansi.go.id" required autocomplete="username">
             </div>
         </div>
         <button type="submit" class="auth-locked-submit">
@@ -30,13 +41,25 @@
     <h1 class="auth-card-title">Lupa Password?</h1>
     <p class="auth-card-subtitle">Masukkan email akun Anda, kami akan mengirimkan tautan untuk membuat password baru.</p>
 
-    <form class="auth-form" method="POST" action="#">
+    @if (session('status'))
+        <div class="auth-locked-notice">
+            <i class="bi bi-check-circle-fill"></i> {{ session('status') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="auth-locked-notice auth-locked-notice-error">
+            <i class="bi bi-exclamation-circle-fill"></i> {{ $errors->first() }}
+        </div>
+    @endif
+
+    <form class="auth-form" method="POST" action="{{ route('lupa-password.submit') }}">
         @csrf
         <div class="auth-field">
             <label for="m-forgot-email">Email</label>
             <div class="auth-input-group">
                 <i class="bi bi-envelope"></i>
-                <input type="email" id="m-forgot-email" name="email" placeholder="nama@instansi.go.id" required>
+                <input type="email" id="m-forgot-email" name="email" value="{{ old('email') }}" placeholder="nama@instansi.go.id" required>
             </div>
         </div>
         <button type="submit" class="btn btn-hero-primary w-100 justify-content-center auth-submit-btn">
