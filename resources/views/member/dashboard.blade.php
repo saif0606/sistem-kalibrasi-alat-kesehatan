@@ -19,7 +19,9 @@
         $statusMeta = [
             'Pengajuan'   => ['label' => 'Menunggu Verifikasi', 'class' => 'status-menunggu'],
             'Penjadwalan' => ['label' => 'Menunggu Jadwal', 'class' => 'status-jadwal'],
+            'Pembayaran'  => ['label' => 'Menunggu Pembayaran', 'class' => 'status-jadwal'],
             'Kalibrasi'   => ['label' => 'Diproses', 'class' => 'status-diproses'],
+            'Sertifikat'  => ['label' => 'Sertifikat', 'class' => 'status-selesai'],
             'Selesai'     => ['label' => 'Selesai', 'class' => 'status-selesai'],
             'Ditolak'     => ['label' => 'Ditolak', 'class' => 'status-ditolak'],
         ];

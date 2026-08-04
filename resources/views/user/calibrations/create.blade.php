@@ -277,32 +277,17 @@
                                 @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            {{-- ADDRESS WITH MAPS AUTOCOMPLETE --}}
+                            {{-- MANUAL ADDRESS --}}
                             <div class="col-12">
                                 <label class="form-label">
                                     Alamat Lengkap <span class="req">*</span>
-                                    <span class="opt ms-1"><i class="bi bi-map"></i> Cari via peta</span>
                                 </label>
-                                <div class="addr-wrapper">
-                                    <div class="input-group">
-                                        <span class="input-group-text" style="background:var(--bg-soft);border:1.5px solid rgba(15,76,150,0.15);border-right:none;border-radius:10px 0 0 10px;">
-                                            <i class="bi bi-geo-alt-fill text-danger"></i>
-                                        </span>
-                                        <input type="text" id="alamatSearch"
-                                            class="form-control @error('alamat_lengkap') is-invalid @enderror"
-                                            placeholder="Ketik nama tempat atau jalan untuk mencari..."
-                                            autocomplete="off"
-                                            style="border-left:none;border-radius:0 10px 10px 0;"
-                                            value="{{ old('alamat_lengkap') }}">
-                                    </div>
-                                    <input type="hidden" name="alamat_lengkap" id="alamatValue" value="{{ old('alamat_lengkap') }}" required>
-                                    <div class="addr-suggestions" id="addrSuggestions"></div>
-                                </div>
-                                <div class="form-text-hint">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Ketik minimal 3 karakter untuk mencari lokasi. Pilih dari daftar yang muncul.
-                                </div>
-                                @error('alamat_lengkap')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                <textarea name="alamat_lengkap" id="alamatValue"
+                                    class="form-control @error('alamat_lengkap') is-invalid @enderror"
+                                    rows="3"
+                                    placeholder="Masukkan alamat lengkap..."
+                                    required>{{ old('alamat_lengkap') }}</textarea>
+                                @error('alamat_lengkap')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
 
@@ -388,109 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    /* ==========================================
-       2. ADDRESS AUTOCOMPLETE (Photon geocoder — lebih pintar
-          untuk nama tempat/POI seperti "UPTD ...", dengan
-          fallback ke Nominatim untuk pencarian alamat jalan)
-    ========================================== */
-    const addrSearch  = document.getElementById('alamatSearch');
-    const addrHidden  = document.getElementById('alamatValue');
-    const addrBox     = document.getElementById('addrSuggestions');
-    let addrTimer     = null;
-    let addrSelected  = !!addrHidden.value; // true if pre-filled (old input)
 
-    // Titik bias pencarian (sekitar Bandar Lampung) supaya hasil lokal lebih relevan,
-    // tapi pencarian tetap tidak dibatasi hanya area ini.
-    const ADDR_BIAS_LAT = -5.3971;
-    const ADDR_BIAS_LON = 105.2668;
-
-    addrSearch.addEventListener('input', function () {
-        const q = this.value.trim();
-        addrSelected = false;
-        addrHidden.value = '';
-        clearTimeout(addrTimer);
-        if (q.length < 3) { addrBox.style.display = 'none'; return; }
-        addrBox.innerHTML = '<div class="addr-loading"><i class="bi bi-arrow-repeat spin me-1"></i>Mencari lokasi...</div>';
-        addrBox.style.display = 'block';
-        addrTimer = setTimeout(() => fetchPhoton(q), 350);
-    });
-
-    function renderSuggestions(items) {
-        if (!items || items.length === 0) {
-            addrBox.innerHTML = '<div class="addr-loading">Lokasi tidak ditemukan.<br><small class="text-muted mt-1 d-block">Anda tetap bisa menggunakan alamat yang diketik secara manual.</small></div>';
-            return;
-        }
-        addrBox.innerHTML = '';
-        items.forEach(label => {
-            const div = document.createElement('div');
-            div.className = 'addr-suggestion-item';
-            div.innerHTML = `<i class="bi bi-geo-alt"></i><span>${escHtml(label)}</span>`;
-            div.addEventListener('mousedown', function (e) {
-                e.preventDefault();
-                addrSearch.value   = label;
-                addrHidden.value   = label;
-                addrSelected       = true;
-                addrBox.style.display = 'none';
-            });
-            addrBox.appendChild(div);
-        });
-    }
-
-    // Provider utama: Photon (bagus untuk nama tempat/POI, mis. "UPTD IFKA")
-    function fetchPhoton(query) {
-        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lat=${ADDR_BIAS_LAT}&lon=${ADDR_BIAS_LON}&location_bias_scale=0.9&limit=6&lang=id`;
-        fetch(url)
-            .then(r => r.json())
-            .then(data => {
-                const feats = (data && data.features) || [];
-                if (feats.length === 0) {
-                    // fallback ke Nominatim untuk pencarian alamat jalan yang lebih presisi
-                    fetchNominatim(query);
-                    return;
-                }
-                renderSuggestions(feats.map(f => formatPhotonAddress(f.properties || {})));
-            })
-            .catch(() => fetchNominatim(query));
-    }
-
-    function formatPhotonAddress(p) {
-        const parts = [];
-        if (p.name) parts.push(p.name);
-        const jalan = [p.street, p.housenumber].filter(Boolean).join(' ');
-        if (jalan) parts.push(jalan);
-        if (p.district) parts.push(p.district);
-        if (p.city) parts.push(p.city);
-        else if (p.county) parts.push(p.county);
-        if (p.state) parts.push(p.state);
-        if (p.postcode) parts.push(p.postcode);
-        if (!parts.includes('Indonesia')) parts.push('Indonesia');
-        return parts.filter(Boolean).join(', ');
-    }
-
-    // Fallback: Nominatim (OpenStreetMap) — kuat untuk alamat jalan/nomor rumah
-    function fetchNominatim(query) {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=6&addressdetails=1&countrycodes=id`;
-        fetch(url, { headers: { 'Accept-Language': 'id' } })
-            .then(r => r.json())
-            .then(data => {
-                if (!data || data.length === 0) {
-                    addrBox.innerHTML = '<div class="addr-loading">Lokasi tidak ditemukan.<br><small class="text-muted mt-1 d-block">Anda tetap bisa menggunakan alamat yang diketik secara manual.</small></div>';
-                    return;
-                }
-                renderSuggestions(data.map(item => item.display_name));
-            })
-            .catch(() => {
-                addrBox.innerHTML = '<div class="addr-loading">Gagal terhubung ke layanan peta. Anda tetap bisa mengetik alamat secara manual.</div>';
-            });
-    }
-
-    // Allow manual entry: sync hidden value on blur if user typed but didn't pick
-    addrSearch.addEventListener('blur', function () {
-        setTimeout(() => { addrBox.style.display = 'none'; }, 150);
-        if (!addrSelected && this.value.trim()) {
-            addrHidden.value = this.value.trim();
-        }
-    });
 
     /* ==========================================
        3. DAFTAR ALAT — dropzone upload modern (multi-file)

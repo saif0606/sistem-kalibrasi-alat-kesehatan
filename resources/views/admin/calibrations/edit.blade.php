@@ -551,7 +551,7 @@
                                 @endforeach
                             </div>
                             @else
-                            <input type="hidden" class="admin-alat-reply-checkbox-edit" value="{{ $alatFilesEdit[0] }}" checked>
+                            <input type="checkbox" class="admin-alat-reply-checkbox-edit d-none" value="{{ $alatFilesEdit[0] }}" checked>
                             @endif
                             <label class="form-label small fw-semibold mb-1">Pesan ke pelanggan</label>
                             <textarea class="form-control form-control-sm admin-alat-reply-text-edit" rows="3" placeholder="Tulis pesan (opsional)..."></textarea>

@@ -921,7 +921,7 @@ img.emoji {
     <div class="chat-user-header">
         <div class="avatar"><i class="bi bi-headset"></i></div>
         <div class="info">
-            <h6>UPTD Kalibrasi<span class="header-subtitle"> â€“ Customer Service</span></h6>
+            <h6>UPTD Kalibrasi<span class="header-subtitle"> - Customer Service</span></h6>
             <small class="header-desc">Ajukan pertanyaan seputar layanan kalibrasi Anda</small>
         </div>
         <a href="https://api.whatsapp.com/send/?phone=6281292923438&text=Halo%20UPTD%20Kalibrasi%2C%20saya%20ingin%20bertanya%20mengenai%20layanan%20kalibrasi.&type=phone_number&app_absent=0"
@@ -1014,9 +1014,10 @@ img.emoji {
 
             @php
                 $isBot = $msg->sender_role === 'bot';
-                $avatarName = $isUser ? urlencode(auth()->user()->name) : ($isBot ? 'Bot' : 'Admin+UPTD');
+                $adminName = $msg->admin ? 'Admin (' . explode(' ', $msg->admin->name)[0] . ')' : 'Admin UPTD';
+                $avatarName = $isUser ? urlencode(auth()->user()->name) : ($isBot ? 'Bot' : urlencode($adminName));
                 $avatarBg = $isUser ? '406768' : ($isBot ? '0b5ed7' : '089145');
-                $senderName = $isUser ? auth()->user()->name : ($isBot ? 'Asisten Bot' : 'Admin UPTD');
+                $senderName = $isUser ? auth()->user()->name : ($isBot ? 'Asisten Bot' : $adminName);
             @endphp
             <div class="msg-row {{ $isUser ? 'msg-row--right' : 'msg-row--left' }}" data-msg-id="{{ $msg->id }}">
                 <img class="msg-avatar-sm"
@@ -1757,9 +1758,9 @@ function buildBubble(msg, isNew = false) {
     const row = document.createElement('div');
     row.className = `msg-row ${isUser ? 'msg-row--right' : 'msg-row--left'}${isNew ? ' is-new' : ''}`;
     row.dataset.msgId = msg.id;
-    const avatarName = isUser ? encodeURIComponent(userName) : (isBot ? 'Bot' : 'Admin+UPTD');
+    const avatarName = isUser ? encodeURIComponent(userName) : (isBot ? 'Bot' : encodeURIComponent(msg.admin_name ? 'Admin (' + msg.admin_name.split(' ')[0] + ')' : 'Admin UPTD'));
     const avatarBg   = isUser ? '406768' : (isBot ? '0b5ed7' : '089145'); // Blue for bot
-    const senderName = isUser ? userName : (isBot ? 'Asisten Bot' : 'Admin UPTD');
+    const senderName = isUser ? userName : (isBot ? 'Asisten Bot' : (msg.admin_name ? 'Admin (' + msg.admin_name.split(' ')[0] + ')' : 'Admin UPTD'));
     
     // Reply quote (if this message is a reply to another)
     let replyQuoteHtml = '';

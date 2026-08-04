@@ -145,27 +145,12 @@
                                     <span><i class="bi bi-clipboard2-check"></i> Jenis Layanan</span>
                                     <strong>Kalibrasi</strong>
                                 </div>
-                                @php
-                                    $daftarAlat = $item->daftar_alat;
-                                    if (is_string($daftarAlat)) {
-                                        $daftarAlat = json_decode($daftarAlat, true);
-                                    }
-                                @endphp
-                                <div class="riw-meta-item">
-                                    <span><i class="bi bi-tools"></i> Jumlah Alat</span>
-                                    <strong>{{ count(is_countable($daftarAlat) ? $daftarAlat : []) }} Alat</strong>
-                                </div>
                             </div>
 
                             <div class="riw-card-footer">
                                 <a href="{{ route('user.calibrations.show', $item->id) }}#top" class="btn btn-hero-outline riw-card-btn">
                                     Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
-                                @if ($item->status === 'Selesai')
-                                    <button type="button" class="btn btn-hero-primary riw-card-btn riw-download-btn" data-kode="{{ $item->registration_number }}">
-                                        <i class="bi bi-download me-1"></i> Download Sertifikat
-                                    </button>
-                                @endif
                             </div>
                         </div>
                     @endforeach

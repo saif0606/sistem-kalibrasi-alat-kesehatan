@@ -21,7 +21,7 @@ class ChatController extends Controller
         ->whereNull('read_by_user_at')
         ->update(['read_by_user_at' => now()]);
         
-        $messages = ChatMessage::where('user_id', Auth::id())->oldest()->get();
+        $messages = ChatMessage::with('admin')->where('user_id', Auth::id())->oldest()->get();
 
         $calibrations = \App\Models\CalibrationRequest::where('user_id', Auth::id())
             ->whereNotNull('draft_harga')
@@ -51,11 +51,12 @@ public function unreadCount()
 
     public function messages()
     {
-        $messages = ChatMessage::with('parent')->where('user_id', Auth::id())->oldest()->get()->map(function ($msg) {
+        $messages = ChatMessage::with(['parent', 'admin'])->where('user_id', Auth::id())->oldest()->get()->map(function ($msg) {
             return [
                 'id'          => $msg->id,
                 'message'     => $msg->message ? e($msg->message) : null,
                 'sender_role' => $msg->sender_role,
+                'admin_name'  => $msg->admin ? $msg->admin->name : null,
                 'time'        => $msg->created_at->format('H:i'),
                 'date'        => $msg->created_at->format('Y-m-d'),
                 'date_label'  => $msg->created_at->isToday()

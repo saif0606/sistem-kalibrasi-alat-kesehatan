@@ -24,10 +24,15 @@ class CertificateReadyMail extends Mailable
         );
     }
 
-    public function content(): Content
+    public function build(): static
     {
-        return new Content(
-            view: 'emails.certificate-ready',
-        );
+        $logoPath = public_path('images/logo-white.png');
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $logoSrc  = 'data:image/png;base64,' . $logoData;
+
+        return $this->view('emails.certificate-ready', [
+            'calibration' => $this->calibration,
+            'logoSrc'     => $logoSrc,
+        ])->subject('Sertifikat Kalibrasi Anda Sudah Terbit — ' . $this->calibration->registration_number);
     }
 }
