@@ -2047,7 +2047,6 @@ async function sendMessage() {
     const tempId = 'typing-' + Date.now();
     const typingHtml = `
         <div class="msg-row bot-msg" id="${tempId}">
-            <img src="{{ asset('images/logo-uptd-transparent.png') }}" alt="Bot" class="msg-avatar">
             <div class="msg-bubble shadow-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px 16px 16px 4px; padding:12px 16px;">
                 <div class="typing-indicator">
                     <span></span><span></span><span></span>
