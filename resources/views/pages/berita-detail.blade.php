@@ -6,6 +6,8 @@
 
     @php
         $categoryClass = [
+            'Instagram' => 'berita-cat-dokumentasi',
+            'Youtube' => 'berita-cat-dokumentasi',
             'Berita' => 'berita-cat-berita',
             'Pengumuman' => 'berita-cat-pengumuman',
             'Edukasi' => 'berita-cat-edukasi',
@@ -47,8 +49,8 @@
                         </div>
 
                         <div class="berita-detail-meta" data-aos="fade-up">
-                            <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] }}">{{ $item['kategori'] }}</span>
-                            <span class="berita-source-badge"><i class="bi {{ $sourceIcon[$item['sumber']] }}"></i> {{ $item['sumber'] }}</span>
+                            <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] ?? 'berita-cat-dokumentasi' }}">{{ $item['kategori'] }}</span>
+                            <span class="berita-source-badge"><i class="bi {{ $sourceIcon[$item['sumber']] ?? 'bi-globe2' }}"></i> {{ $item['sumber'] }}</span>
                             <span class="berita-date"><i class="bi bi-calendar3"></i> {{ $item['tanggal']->translatedFormat('d F Y, H:i') }} WIB</span>
                         </div>
 
@@ -60,7 +62,7 @@
 
                         @if (in_array($item['sumber'], $socialSources) && !empty($item['sumber_url']))
                             <a href="{{ $item['sumber_url'] }}" target="_blank" rel="noopener" class="btn btn-hero-outline berita-original-btn" data-aos="fade-up">
-                                <i class="bi {{ $sourceIcon[$item['sumber']] }} me-1"></i> Lihat Postingan Asli
+                                <i class="bi {{ $sourceIcon[$item['sumber']] ?? 'bi-globe2' }} me-1"></i> Lihat Postingan Asli
                             </a>
                         @elseif ($item['sumber'] === 'Website' && !empty($item['sumber_url']))
                             <a href="{{ $item['sumber_url'] }}" target="_blank" rel="noopener" class="btn btn-hero-outline berita-original-btn" data-aos="fade-up">

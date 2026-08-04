@@ -107,7 +107,7 @@ class ArticleController extends Controller
             'link_url'     => ['nullable', 'url'],
             'image_shape'  => ['nullable', 'string', 'in:square,landscape,portrait'],
             'published_at' => ['nullable', 'date'],
-            'image'        => ['nullable', 'image', 'max:2048'],
+            'image'        => ['nullable', 'image', 'max:5120'],
         ]);
 
         $validated['slug'] = $this->uniqueSlug($validated['title']);
@@ -141,7 +141,7 @@ class ArticleController extends Controller
             'link_url'     => ['nullable', 'url'],
             'image_shape'  => ['nullable', 'string', 'in:square,landscape,portrait'],
             'published_at' => ['nullable', 'date'],
-            'image'        => ['nullable', 'image', 'max:2048'],
+            'image'        => ['nullable', 'image', 'max:5120'],
         ]);
 
         if ($validated['title'] !== $article->title) {

@@ -46,7 +46,7 @@
             ['hari' => 'Minggu', 'jam' => 'Tutup', 'buka' => false],
         ];
 
-        $areaPelayanan = ['Rumah Sakit', 'Puskesmas', 'Klinik', 'Laboratorium', 'Fasilitas Pelayanan Kesehatan Lainnya'];
+        $areaPelayanan = ['Rumah Sakit', 'Puskesmas', 'Klinik', 'Fasilitas Pelayanan Kesehatan Lainnya'];
     @endphp
 
     <x-page-hero

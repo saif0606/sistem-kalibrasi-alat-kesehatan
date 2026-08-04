@@ -135,7 +135,7 @@
                         <div id="dropContent">
                             <div style="font-size:30px;color:#17a45c;margin-bottom:8px;"><i class="bi bi-cloud-arrow-up"></i></div>
                             <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Seret & lepas gambar di sini</div>
-                            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">atau klik untuk browse — PNG, JPG, WEBP · maks 2MB</div>
+                            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">atau klik untuk browse — PNG, JPG, WEBP · maks 5MB</div>
                         </div>
                     </div>
                     @error('image')<div class="invalid-msg">{{ $message }}</div>@enderror
@@ -250,7 +250,7 @@ function clearUpload() {
     document.getElementById('dropContent').innerHTML =
         `<div style="font-size:30px;color:#17a45c;margin-bottom:8px"><i class="bi bi-cloud-arrow-up"></i></div>
          <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Seret & lepas gambar di sini</div>
-         <div style="font-size:12px;color:#94a3b8;margin-top:4px">atau klik untuk browse — PNG, JPG, WEBP · maks 2MB</div>`;
+         <div style="font-size:12px;color:#94a3b8;margin-top:4px">atau klik untuk browse — PNG, JPG, WEBP · maks 5MB</div>`;
     refreshPreview();
 }
 

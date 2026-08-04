@@ -28,11 +28,12 @@ class ServiceController extends Controller
             'name'        => ['required', 'string', 'max:255'],
             'price'       => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
-            'image'       => ['nullable', 'image', 'max:2048'],
+            'image'       => ['nullable', 'image', 'max:5120'],
             'is_kan'      => ['nullable', 'boolean'],
         ]);
 
         $validated['is_kan'] = $request->boolean('is_kan');
+        $validated['slug'] = $this->uniqueSlug($validated['name']);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');
@@ -60,11 +61,14 @@ class ServiceController extends Controller
             'name'        => ['required', 'string', 'max:255'],
             'price'       => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
-            'image'       => ['nullable', 'image', 'max:2048'],
+            'image'       => ['nullable', 'image', 'max:5120'],
             'is_kan'      => ['nullable', 'boolean'],
         ]);
 
         $validated['is_kan'] = $request->boolean('is_kan');
+        if ($validated['name'] !== $service->name) {
+            $validated['slug'] = $this->uniqueSlug($validated['name'], $service->id);
+        }
 
         if ($request->hasFile('image')) {
             if ($service->image) {
@@ -89,5 +93,22 @@ class ServiceController extends Controller
 
         return redirect()->route('admin.services.index')
             ->with('success', 'Layanan berhasil dihapus.');
+    }
+
+    private function uniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($name);
+        $slug = $base !== '' ? $base : 'layanan';
+        $i = 1;
+
+        while (
+            Service::where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $i++;
+        }
+
+        return $slug;
     }
 }

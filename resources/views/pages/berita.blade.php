@@ -8,6 +8,8 @@
         // $beritaList disuntik dari route (uptdBeritaData()), sudah terurut
         // dari yang terbaru — nanti diganti Berita::latest()->get().
         $categoryClass = [
+            'Instagram' => 'berita-cat-dokumentasi',
+            'Youtube' => 'berita-cat-dokumentasi',
             'Berita' => 'berita-cat-berita',
             'Pengumuman' => 'berita-cat-pengumuman',
             'Edukasi' => 'berita-cat-edukasi',
@@ -101,7 +103,7 @@
                                 @else
                                     <i class="bi {{ $socialFeatured['icon'] }}"></i>
                                 @endif
-                                <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$socialFeatured['sumber']] }}"></i> {{ $socialFeatured['sumber'] }}</span>
+                                <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$socialFeatured['sumber']] ?? 'bi-globe2' }}"></i> {{ $socialFeatured['sumber'] }}</span>
                             </div>
                             <div class="berita-social-featured-body">
                                 <h3>{{ $socialFeatured['judul'] }}</h3>
@@ -126,7 +128,7 @@
                                         @endif
                                     </span>
                                     <span class="berita-social-small-body">
-                                        <span class="berita-source-badge"><i class="bi {{ $sourceIcon[$item['sumber']] }}"></i> {{ $item['sumber'] }}</span>
+                                        <span class="berita-source-badge"><i class="bi {{ $sourceIcon[$item['sumber']] ?? 'bi-globe2' }}"></i> {{ $item['sumber'] }}</span>
                                         <strong>{{ $item['judul'] }}</strong>
                                         <span class="berita-date"><i class="bi bi-clock-history"></i> {{ $item['tanggal']->diffForHumans() }}</span>
                                     </span>
@@ -161,10 +163,10 @@
                                     @else
                                         <i class="bi {{ $item['icon'] }}"></i>
                                     @endif
-                                    <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$item['sumber']] }}"></i> {{ $item['sumber'] }}</span>
+                                    <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$item['sumber']] ?? 'bi-globe2' }}"></i> {{ $item['sumber'] }}</span>
                                 </div>
                                 <div class="berita-card-body">
-                                    <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] }}">{{ $item['kategori'] }}</span>
+                                    <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] ?? 'berita-cat-dokumentasi' }}">{{ $item['kategori'] }}</span>
                                     <h3>{{ $item['judul'] }}</h3>
                                     <p>{{ $item['ringkasan'] }}</p>
                                     <div class="berita-card-footer">
@@ -242,10 +244,10 @@
                                 @else
                                     <i class="bi {{ $item['icon'] }}"></i>
                                 @endif
-                                <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$item['sumber']] }}"></i> {{ $item['sumber'] }}</span>
+                                <span class="berita-source-badge berita-source-badge-onvisual"><i class="bi {{ $sourceIcon[$item['sumber']] ?? 'bi-globe2' }}"></i> {{ $item['sumber'] }}</span>
                             </div>
                             <div class="berita-card-body">
-                                <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] }}">{{ $item['kategori'] }}</span>
+                                <span class="berita-cat-badge {{ $categoryClass[$item['kategori']] ?? 'berita-cat-dokumentasi' }}">{{ $item['kategori'] }}</span>
                                 <h3>{{ $item['judul'] }}</h3>
                                 <p>{{ $item['ringkasan'] }}</p>
                                 <div class="berita-card-footer">
