@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Chat - UPTD Kalibrasi')
 @section('hide_chrome', true)
@@ -822,6 +822,17 @@ body.chat-page-body .back-to-top { display: none !important; }
     justify-content: space-between;
 }
 .chat-input-left-actions { display: flex; align-items: center; gap: 6px; }
+.typing-indicator { display: inline-flex; align-items: center; gap: 4px; padding: 4px 0; }
+.typing-indicator span {
+    width: 6px; height: 6px; background-color: #1E9447;
+    border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
 
 /* Action buttons â€” pill style */
 .btn-action-pill {
@@ -2032,6 +2043,20 @@ async function sendMessage() {
     chatInput.value = '';
     fileInput.value = '';
     cancelReply();
+
+    const tempId = 'typing-' + Date.now();
+    const typingHtml = `
+        <div class="msg-row bot-msg" id="${tempId}">
+            <img src="{{ asset('images/logo-uptd-transparent.png') }}" alt="Bot" class="msg-avatar">
+            <div class="msg-bubble shadow-sm" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px 16px 16px 4px; padding:12px 16px;">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    `;
+    chatBody.insertAdjacentHTML('beforeend', typingHtml);
+    scrollToBottom();
 
     try {
         const res = await fetch(storeUrl, {
